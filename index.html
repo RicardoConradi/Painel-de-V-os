@@ -2,844 +2,662 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>Painel de Embarque</title>
-<!-- build: manual-publish-fix -->
 <meta name="theme-color" content="#12151a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Embarque">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2312151a'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23f5a623' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2312151a'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23f5a623' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
-<link rel="manifest" href='data:application/manifest+json,{"name":"Painel de Embarque","short_name":"Embarque","display":"standalone","start_url":".","background_color":"%2312151a","theme_color":"%2312151a"}'>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%2312151a'/%3E%3Ctext x='90' y='122' font-size='104' text-anchor='middle' fill='%23f5a623' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Painel de Embarque","short_name":"Embarque","display":"standalone","orientation":"portrait","background_color":"%2312151a","theme_color":"%2312151a","start_url":"./"}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-  :root{
-    --bg:#12151a; --panel:#1b1f26; --panel-2:#232833; --line:#2c323d;
-    --amber:#f5a623; --amber-soft:rgba(245,166,35,0.14); --amber-dim:#8a6a2e;
-    --text:#eef1f4; --muted:#7b8494;
-    --green:#4caf7d; --green-soft:rgba(76,175,125,0.14);
-    --rust:#c1553d; --rust-soft:rgba(193,85,61,0.14);
-    --mono:'IBM Plex Mono', ui-monospace, monospace;
-    --sans:'Inter', -apple-system, sans-serif;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:radial-gradient(circle at 15% 0%, rgba(245,166,35,0.06), transparent 45%), var(--bg);
-    color:var(--text); font-family:var(--sans); min-height:100vh; padding:20px 16px 60px;
-  }
-  .wrap{max-width:720px;margin:0 auto;}
-
-  header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:20px;}
-  header .title{font-family:var(--mono);font-weight:700;letter-spacing:0.08em;font-size:15px;color:var(--amber);text-transform:uppercase;}
-  header .subtitle{font-size:12px;color:var(--muted);margin-top:4px;}
-  header .date{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;}
-
-  .hero{background:linear-gradient(135deg, var(--panel-2), var(--panel));border:1px solid var(--line);border-radius:14px;padding:22px 20px;margin-bottom:16px;position:relative;overflow:hidden;}
-  .hero::before{content:"";position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:radial-gradient(circle, var(--amber-soft), transparent 70%);}
-  .hero .eyebrow{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;}
-  .hero .countdown{font-family:var(--mono);font-size:34px;font-weight:700;margin:6px 0 2px;letter-spacing:-0.01em;}
-  .hero .route{font-size:14px;color:var(--muted);}
-  .hero .route b{color:var(--text);font-weight:600;}
-
-  .dropzone{
-    border:1.5px dashed var(--line); border-radius:14px; padding:18px 16px;
-    display:flex;align-items:center;gap:12px;margin-bottom:20px;cursor:pointer;
-    transition:border-color .15s ease, background .15s ease; background:var(--panel);
-  }
-  .dropzone.drag{border-color:var(--amber);background:var(--amber-soft);}
-  .dropzone .icon{font-family:var(--mono);font-size:20px;color:var(--amber);}
-  .dropzone .txt b{display:block;font-size:13px;font-weight:600;}
-  .dropzone .txt span{font-size:11.5px;color:var(--muted);}
-  .dropzone input{display:none;}
-
-  .tabs{display:flex;gap:8px;margin-bottom:16px;}
-  .tab{font-family:var(--mono);font-size:12px;letter-spacing:0.05em;text-transform:uppercase;padding:9px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .15s ease;}
-  .tab.active{color:var(--amber);border-color:var(--amber-dim);background:var(--amber-soft);}
-
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden;}
-  .card-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;}
-  .card-head .route-name{font-weight:600;font-size:15px;}
-  .card-head .os{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
-  .card-head .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:4px;}
-  .card-head .del:hover{color:var(--rust);}
-
-  .leg{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:10px 18px;border-top:1px solid var(--line);}
-  .leg:first-of-type{border-top:none;}
-  .leg .flap{font-family:var(--mono);background:#0d1013;border:1px solid var(--line);border-radius:6px;padding:6px 9px;font-size:13px;color:var(--amber);letter-spacing:0.03em;white-space:nowrap;}
-  .leg .mid{min-width:0;}
-  .leg .cities{font-size:13.5px;font-weight:600;}
-  .leg .meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;}
-
-  .status-btn{font-family:var(--mono);font-size:11px;letter-spacing:0.03em;padding:7px 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s ease;}
-  .status-btn.done{background:var(--green-soft);border-color:var(--green);color:var(--green);}
-  .status-btn.ready{background:var(--amber-soft);border-color:var(--amber-dim);color:var(--amber);animation:pulse 2s infinite;}
-  .status-btn.locked{opacity:0.5;cursor:not-allowed;}
-  .status-btn:disabled{cursor:not-allowed;}
-  .edit-btn{background:none;border:1px solid var(--line);border-radius:7px;color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:13px;flex-shrink:0;}
-  .edit-btn:hover{color:var(--amber);border-color:var(--amber-dim);}
-  .add-leg-btn{width:100%;background:none;border:none;border-top:1px dashed var(--line);color:var(--amber-dim);font-family:var(--mono);font-size:11px;letter-spacing:0.04em;padding:10px;cursor:pointer;}
-  .add-leg-btn:hover{color:var(--amber);}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
-
-  .empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
-  .empty .big{font-family:var(--mono);color:var(--amber-dim);font-size:20px;margin-bottom:8px;}
-
-  .footnote{font-size:11px;color:var(--muted);text-align:center;margin-top:24px;line-height:1.6;}
-
-  /* modal de revisão */
-  .overlay{position:fixed;inset:0;background:rgba(8,10,13,0.75);display:none;align-items:flex-end;justify-content:center;z-index:50;}
-  .overlay.open{display:flex;}
-  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 0 0;max-width:720px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;overscroll-behavior:contain;}
-  body.modal-open{overflow:hidden;position:fixed;width:100%;}
-  .modal h3{font-family:var(--mono);font-size:13px;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em;margin:0 0 4px;}
-  .modal .sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
-  .review-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--line);}
-  .review-row:first-of-type{border-top:none;}
-  .review-row input[type=checkbox]{margin-top:3px;accent-color:var(--amber);}
-  .review-row .rtxt b{font-size:13px;}
-  .review-row .rtxt .meta{font-family:var(--mono);font-size:11px;color:var(--muted);}
-  .review-row .rtxt .warn{font-size:11px;color:var(--rust);margin-top:2px;}
-  .modal-actions{display:flex;gap:10px;margin-top:18px;position:sticky;bottom:-20px;background:var(--panel);padding:12px 0 4px;}
-  .btn{font-family:var(--mono);font-size:12px;letter-spacing:0.03em;padding:11px 16px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;flex:1;text-align:center;}
-  .btn.primary{background:var(--amber);border-color:var(--amber);color:#1a1300;font-weight:600;}
-  .btn.ghost{color:var(--muted);}
-  .raw-fallback{margin-top:12px;}
-  .raw-fallback summary{font-size:11.5px;color:var(--muted);cursor:pointer;}
-  .raw-fallback textarea{width:100%;height:140px;margin-top:8px;background:#0d1013;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:11px;padding:10px;}
-
-  @media (prefers-reduced-motion: reduce){.status-btn.ready{animation:none;}}
+:root{--bg:#12151a;--panel:#1b1f26;--panel-2:#232833;--line:#2c323d;--amber:#f5a623;--amber-soft:rgba(245,166,35,.14);--amber-dim:#8a6a2e;--text:#eef1f4;--muted:#7b8494;--green:#4caf7d;--green-soft:rgba(76,175,125,.14);--rust:#c1553d;--rust-soft:rgba(193,85,61,.14);--mono:'IBM Plex Mono',ui-monospace,monospace;--sans:'Inter',-apple-system,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 15% 0%,rgba(245,166,35,.06),transparent 45%),var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding:max(20px,env(safe-area-inset-top)) 16px 60px}
+.wrap{max-width:720px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:18px}
+header .title{font-family:var(--mono);font-weight:700;letter-spacing:.08em;font-size:15px;color:var(--amber);text-transform:uppercase}
+header .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
+header .date{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
+.hero{background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:22px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:radial-gradient(circle,var(--amber-soft),transparent 70%)}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase}
+.hero .countdown{font-family:var(--mono);font-size:34px;font-weight:700;margin:6px 0 2px}
+.hero .route{font-size:14px;color:var(--muted);line-height:1.5}
+.hero .route b{color:var(--text);font-weight:600}
+.banner{background:var(--rust-soft);border:1px solid var(--rust);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner button{background:none;border:1px solid var(--rust);color:var(--rust);border-radius:6px;font-family:var(--mono);font-size:11px;padding:7px 10px;cursor:pointer;white-space:nowrap}
+.dropzone{border:1.5px dashed var(--line);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:12px;cursor:pointer;background:var(--panel)}
+.dropzone.drag{border-color:var(--amber);background:var(--amber-soft)}
+.dropzone .icon{font-family:var(--mono);font-size:20px;color:var(--amber)}
+.dropzone .txt b{display:block;font-size:13px}
+.dropzone .txt span{font-size:11.5px;color:var(--muted)}
+.dropzone input{display:none}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px}
+.tool{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:11px;padding:9px 12px;cursor:pointer}
+.tool.hi{color:var(--amber);border-color:var(--amber-dim);background:var(--amber-soft)}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;text-align:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;padding:10px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer}
+.tab.active{color:var(--amber);border-color:var(--amber-dim);background:var(--amber-soft)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px;overflow:hidden}
+.card.live{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber-soft),0 6px 30px rgba(245,166,35,.09)}
+.card.live .card-head{background:var(--amber-soft)}
+.livetag{font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.card-head{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card-head .route-name{font-weight:600;font-size:15px}
+.card-head .os{font-family:var(--mono);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.hbtn{background:none;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-family:var(--mono);font-size:12px;padding:6px 8px;cursor:pointer}
+.hbtn.del{border:none;font-size:17px;padding:3px 5px}
+.hbtn.del:active{color:var(--rust)}
+.leg{padding:12px 16px;border-top:1px solid var(--line)}
+.legtop{display:flex;align-items:center;gap:12px}
+.flap{font-family:var(--mono);background:#0d1013;border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:13px;color:var(--amber);white-space:nowrap;text-decoration:none;flex-shrink:0}
+.mid{min-width:0;flex:1}
+.cities{font-size:13.5px;font-weight:600}
+.meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.loc{color:var(--amber-dim)}
+.legbot{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:11px;padding:7px 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);cursor:pointer;text-decoration:none;white-space:nowrap}
+.chip.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.chip.ready{background:var(--amber-soft);border-color:var(--amber-dim);color:var(--amber);animation:pulse 2s infinite;font-weight:600}
+.chip.locked{opacity:.45}
+.chip.fill{background:var(--amber);border-color:var(--amber);color:#1a1300;font-weight:600}
+.gateboard{display:flex;gap:8px;margin-top:10px}
+.gcell{flex:1;background:#0d1013;border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;cursor:pointer}
+.gcell .gl{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.gcell .gv{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--amber);line-height:1.25}
+.gcell .gv.off{color:var(--line)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.add-leg-btn{width:100%;background:none;border:none;border-top:1px dashed var(--line);color:var(--amber-dim);font-family:var(--mono);font-size:11px;padding:11px;cursor:pointer}
+.empty{padding:38px 20px;text-align:center;color:var(--muted);font-size:13px}
+.empty .big{font-family:var(--mono);color:var(--amber-dim);font-size:20px;margin-bottom:8px}
+.footnote{font-size:11px;color:var(--muted);text-align:center;margin-top:24px;line-height:1.7}
+.overlay{position:fixed;inset:0;background:rgba(8,10,13,.78);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 0 0;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;padding:20px 20px calc(20px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+body.modal-open{overflow:hidden}
+.modal h3{font-family:var(--mono);font-size:13px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px}
+.modal .sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.review-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.review-row:first-of-type{border-top:none}
+.review-row input[type=checkbox]{margin-top:3px;accent-color:var(--amber);width:19px;height:19px}
+.rtxt b{font-size:13px}
+.rtxt .meta{margin-top:3px}
+.warn{font-size:11px;color:var(--rust);margin-top:3px;font-family:var(--mono)}
+.modal-actions{display:flex;gap:10px;margin-top:18px;position:sticky;bottom:-20px;background:var(--panel);padding:12px 0 4px}
+.btn{font-family:var(--mono);font-size:12px;padding:13px 16px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;flex:1;text-align:center}
+.btn.primary{background:var(--amber);border-color:var(--amber);color:#1a1300;font-weight:600}
+.btn.ghost{color:var(--muted)}
+.raw-fallback{margin-top:12px}
+.raw-fallback summary{font-size:11.5px;color:var(--muted);cursor:pointer}
+.raw-fallback textarea{width:100%;height:150px;margin-top:8px;background:#0d1013;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:11px;padding:10px}
+.fld{margin-bottom:10px}
+.fld label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.fld input,.fld select{width:100%;padding:11px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);font-size:15px}
+.fld input.sans{font-family:var(--sans)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.up{text-transform:uppercase}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(26px + env(safe-area-inset-bottom));background:var(--panel-2);border:1px solid var(--amber-dim);color:var(--amber);font-family:var(--mono);font-size:12px;padding:11px 16px;border-radius:10px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+@media(prefers-reduced-motion:reduce){.chip.ready{animation:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <div class="title">Painel de Embarque</div>
-      <div class="subtitle">Viagens comerciais programadas</div>
-    </div>
+    <div><div class="title">Painel de Embarque</div><div class="subtitle">Viagens comerciais programadas</div></div>
     <div class="date" id="today-date"></div>
   </header>
-
+  <div id="backup-banner"></div>
   <div class="hero" id="hero"></div>
-
   <label class="dropzone" id="dropzone">
     <div class="icon">⇪</div>
-    <div class="txt">
-      <b id="dz-label">Enviar PDF de passagem ou voucher de carro</b>
-      <span>Arraste o arquivo aqui ou toque para escolher · roteiros e vouchers Localiza</span>
-    </div>
+    <div class="txt"><b id="dz-label">Enviar PDF de passagem ou voucher de carro</b><span>Toque para escolher · roteiros e vouchers Localiza</span></div>
     <input type="file" id="file-input" accept="application/pdf" multiple>
   </label>
-  <div style="text-align:center;margin:-10px 0 20px;">
-    <button id="open-manual" style="background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:11.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">ou digitar os dados manualmente</button>
+  <div class="toolbar">
+    <button class="tool hi" id="open-manual">✎ Digitar voo</button>
+    <button class="tool" id="export-ics">📅 Calendário</button>
+    <button class="tool" id="export-backup">⬇ Backup</button>
+    <label class="tool" for="import-backup">⬆ Restaurar</label>
+    <input type="file" id="import-backup" accept="application/json" style="display:none">
   </div>
-  <div style="display:flex;gap:8px;justify-content:center;margin:-6px 0 20px;">
-    <button id="export-backup" style="background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px;cursor:pointer;">⬇ Exportar backup</button>
-    <label for="import-backup" style="background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px;cursor:pointer;">⬆ Importar backup</label>
-    <input type="file" id="import-backup" accept="application/json" style="display:none;">
-  </div>
-
   <div class="tabs">
     <div class="tab active" data-tab="voos">Voos</div>
-    <div class="tab" data-tab="carro">Locação de carro</div>
+    <div class="tab" data-tab="carro">Carro</div>
     <div class="tab" data-tab="historico">Histórico</div>
   </div>
-
   <div id="tab-voos"></div>
-  <div id="tab-carro" style="display:none;"></div>
-  <div id="tab-historico" style="display:none;"></div>
-
-  <div class="footnote">Extração automática por reconhecimento de texto — sempre revise antes de confirmar. Só viagens futuras entram no painel.</div>
+  <div id="tab-carro" style="display:none"></div>
+  <div id="tab-historico" style="display:none"></div>
+  <div class="footnote">Tudo é salvo automaticamente neste aparelho — não existe botão salvar.<br>O backup mensal serve só para emergência (troca de celular, dados apagados).</div>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h3 id="modal-title">Revisar extração</h3>
-    <div class="sub" id="modal-sub"></div>
-    <div id="modal-body"></div>
-    <div class="modal-actions">
-      <button class="btn ghost" id="modal-cancel">Cancelar</button>
-      <button class="btn primary" id="modal-confirm">Adicionar ao painel</button>
-    </div>
+<div class="overlay" id="overlay"><div class="modal">
+  <h3 id="modal-title">Revisar extração</h3><div class="sub" id="modal-sub"></div>
+  <div id="modal-body"></div>
+  <div class="modal-actions"><button class="btn ghost" id="modal-cancel">Cancelar</button><button class="btn primary" id="modal-confirm">Adicionar</button></div>
+</div></div>
+
+<div class="overlay" id="overlay-manual"><div class="modal">
+  <h3 id="manual-title">Adicionar voo</h3><div class="sub">Preencha os dados do trecho</div>
+  <div class="grid2">
+    <div class="fld"><label>Origem (ex: JOI)</label><input id="m-from" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
+    <div class="fld"><label>Destino (ex: GRU)</label><input id="m-to" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
   </div>
-</div>
-
-<div class="overlay" id="overlay-manual">
-  <div class="modal">
-    <h3 id="manual-title">Adicionar voo manualmente</h3>
-    <div class="sub">Preencha os dados do trecho — sem depender de PDF</div>
-    <form id="manual-form">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Origem (código, ex: JOI)</label>
-          <input required id="m-from" maxlength="4" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);text-transform:uppercase;">
-        </div>
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Destino (código, ex: GRU)</label>
-          <input required id="m-to" maxlength="4" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);text-transform:uppercase;">
-        </div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Cidades (ex: Joinville → São Paulo)</label>
-        <input required id="m-cities" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--sans);">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Data</label>
-          <input required type="date" id="m-date" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);">
-        </div>
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Voo (ex: G3 1882)</label>
-          <input required id="m-flight" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);">
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Hora saída</label>
-          <input required type="time" id="m-dep" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);">
-        </div>
-        <div>
-          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Hora chegada</label>
-          <input required type="time" id="m-arr" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--mono);">
-        </div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">Nome da viagem / O.S. (opcional)</label>
-        <input id="m-label" style="width:100%;padding:9px;border-radius:8px;border:1px solid var(--line);background:#0d1013;color:var(--text);font-family:var(--sans);">
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn ghost" id="manual-cancel">Cancelar</button>
-        <button type="button" class="btn primary" id="manual-submit" onclick="alert('Cliquei no botão — o toque está funcionando.')">Adicionar ao painel</button>
-      </div>
-    </form>
+  <div class="fld"><label>Cidades (preenche sozinho)</label><input id="m-cities" class="sans"></div>
+  <div class="grid2">
+    <div class="fld"><label>Companhia</label><select id="m-airline"><option value="">—</option><option value="GOL">GOL</option><option value="LATAM">LATAM</option><option value="Azul">Azul</option><option value="Outra">Outra</option></select></div>
+    <div class="fld"><label>Nº do voo (ex: 1882)</label><input id="m-num" inputmode="numeric" autocomplete="off"></div>
   </div>
-</div>
+  <div class="grid2">
+    <div class="fld"><label>Data</label><input type="date" id="m-date"></div>
+    <div class="fld"><label>Localizador</label><input id="m-locator" class="up" autocapitalize="characters" autocomplete="off"></div>
+  </div>
+  <div class="grid2">
+    <div class="fld"><label>Hora saída</label><input type="time" id="m-dep"></div>
+    <div class="fld"><label>Hora chegada</label><input type="time" id="m-arr"></div>
+  </div>
+  <div class="grid3">
+    <div class="fld"><label>Terminal</label><input id="m-term" maxlength="4" class="up" autocomplete="off"></div>
+    <div class="fld"><label>Portão</label><input id="m-gate" maxlength="5" class="up" autocomplete="off"></div>
+    <div class="fld"><label>Assento</label><input id="m-seat" maxlength="5" class="up" autocomplete="off"></div>
+  </div>
+  <div class="fld"><label>Nome da viagem / O.S. (opcional)</label><input id="m-label" class="sans"></div>
+  <div class="modal-actions"><button class="btn ghost" id="manual-cancel">Cancelar</button><button class="btn primary" id="manual-submit">Adicionar</button></div>
+</div></div>
+
+<div class="overlay" id="overlay-gate"><div class="modal">
+  <h3>Dados do aeroporto</h3><div class="sub" id="gate-sub"></div>
+  <div class="grid3">
+    <div class="fld"><label>Terminal</label><input id="g-term" maxlength="4" class="up" autocomplete="off"></div>
+    <div class="fld"><label>Portão</label><input id="g-gate" maxlength="5" class="up" autocomplete="off"></div>
+    <div class="fld"><label>Assento</label><input id="g-seat" maxlength="5" class="up" autocomplete="off"></div>
+  </div>
+  <div class="fld"><label>Observação (atraso, troca de portão…)</label><input id="g-note" class="sans" autocomplete="off"></div>
+  <div class="modal-actions"><button class="btn ghost" id="gate-cancel">Cancelar</button><button class="btn primary" id="gate-save">Salvar</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-window.addEventListener('error', (ev) => {
-  alert('Erro no painel: ' + ev.message + (ev.filename ? ' (linha ' + ev.lineno + ')' : ''));
-});
-document.addEventListener('DOMContentLoaded', () => {
-  const f = document.getElementById('manual-form');
-  if (f) f.addEventListener('submit', (e) => e.preventDefault()); // trava o Enter, a lógica real está no clique do botão
-});
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const CI_WINDOW=48, LIVE_WINDOW=6, BOARD_MIN=40, BACKUP_DAYS=30;
+const MONTHS={jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+const LS='painel-voos:';
+let TRIPS=[],CARS=[],CHECKINS={};
+const F=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+/* ---- storage: grava sozinho, sempre ---- */
+function lsGet(k){try{return localStorage.getItem(LS+k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(LS+k,v);return true}catch(e){console.error(e);return false}}
+function save(){
+  const ok=lsSet('trips',JSON.stringify(TRIPS))&&lsSet('cars',JSON.stringify(CARS))&&lsSet('checkins',JSON.stringify(CHECKINS));
+  if(!ok) toast('⚠ Não consegui salvar — faça um backup agora');
+}
+function toast(msg){const t=F('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
 
-const CHECKIN_WINDOW_HOURS = 48;
-const MONTHS = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+/* ---- tempo local puro ---- */
+function toStr(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function parseL(s){
+  if(!s)return null;
+  if(/Z$|[+-]\d{2}:\d{2}$/.test(s))return new Date(s);
+  const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  return m?new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]):new Date(s);
+}
+const norm=s=>{const d=parseL(s);return d&&!isNaN(d)?toStr(d):s};
+const fD=s=>{const d=parseL(s);return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`};
+const fT=s=>{const d=parseL(s);return `${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const fut=s=>parseL(s)>new Date();
+const hrsTo=s=>(parseL(s)-new Date())/3600000;
+const WD=['dom','seg','ter','qua','qui','sex','sáb'];
+const fDW=s=>{const d=parseL(s);return WD[d.getDay()]+' '+pad(d.getDate())+'/'+pad(d.getMonth()+1)};
 
-let TRIPS = [];
-let CARS = [];
+function load(){
+  try{TRIPS=JSON.parse(lsGet('trips'))||[]}catch(e){TRIPS=[]}
+  try{CARS=JSON.parse(lsGet('cars'))||[]}catch(e){CARS=[]}
+  try{CHECKINS=JSON.parse(lsGet('checkins'))||{}}catch(e){CHECKINS={}}
+  if(!lsGet('checkins')){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(LS+'checkin:'))CHECKINS[k.slice((LS+'checkin:').length)]=JSON.parse(localStorage.getItem(k))}}catch(e){}}
+  TRIPS.forEach(t=>{t.legs=(t.legs||[]).map(l=>({...l,dt:norm(l.dt),at:norm(l.at)}))});
+  CARS.forEach(c=>{if(c.pickupIso)c.pickupIso=norm(c.pickupIso);if(c.dropIso)c.dropIso=norm(c.dropIso)});
+  save();
+}
 
-/* ---------- storage helpers ---------- */
-/* localStorage é o mecanismo principal: funciona sempre, sem exigir login,
-   inclusive no atalho instalado na tela inicial. window.storage (ligado à
-   conta Claude) é tentado só como bônus, em segundo plano, sem travar nada
-   se pedir login ou falhar. */
-const LS_PREFIX = 'painel-voos:';
-const hasCloudStorage = (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
-
-async function storageGet(key){
-  let local = null;
-  try{ local = localStorage.getItem(LS_PREFIX + key); }catch(e){ /* ambiente sem localStorage */ }
-  if (local !== null) return local;
-  if (hasCloudStorage){
-    try{
-      const r = await window.storage.get(key, false);
-      return r ? r.value : null;
-    }catch(e){ /* sem login ou indisponível — segue sem dado */ }
-  }
+/* ---- companhias ---- */
+const AIR={
+  GOL:{ci:'https://b2c.voegol.com.br/checkin',fa:'GLO',code:'G3',app:'GOL'},
+  LATAM:{ci:'https://www.latamairlines.com/br/pt/checkin',fa:'TAM',code:'LA',app:'LATAM'},
+  Azul:{ci:'https://www.voeazul.com.br/br/pt/home/checkin',fa:'AZU',code:'AD',app:'Azul'},
+  Avianca:{ci:'https://www.avianca.com',fa:'AVA',code:'AV',app:'Avianca'}
+};
+function airOf(l){
+  if(l.airline&&AIR[l.airline])return l.airline;
+  const f=(l.flight||'').toUpperCase();
+  if(f.includes('GOL')||/^G3/.test(f))return 'GOL';
+  if(f.includes('LATAM')||f.includes('TAM')||/^(LA|JJ)/.test(f))return 'LATAM';
+  if(f.includes('AZUL')||/^AD/.test(f))return 'Azul';
+  if(f.includes('AVIANCA'))return 'Avianca';
   return null;
 }
-async function storageSet(key, value){
-  try{ localStorage.setItem(LS_PREFIX + key, value); }catch(e){ console.error('Falha ao salvar localmente:', e); }
-  if (hasCloudStorage){
-    window.storage.set(key, value, false).catch(() => { /* best-effort — ignora falha/login */ });
-  }
+const flightNum=l=>((l.flight||'').match(/(\d{2,5})/)||[,''])[1];
+function ciUrl(l){const a=airOf(l);return a?AIR[a].ci:'https://www.google.com/search?q='+encodeURIComponent('check-in '+(l.flight||''))}
+function liveUrl(l){
+  const a=airOf(l),n=flightNum(l);
+  if(a&&n)return 'https://pt.flightaware.com/live/flight/'+AIR[a].fa+n;
+  return 'https://www.google.com/search?q='+encodeURIComponent('status voo '+(l.flight||'')+' '+fD(l.dt));
+}
+function boardTime(l){const d=parseL(l.dt);d.setMinutes(d.getMinutes()-BOARD_MIN);return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
+
+/* ---- .ics ---- */
+function icsS(s){const d=parseL(s);return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`}
+const icsE=t=>String(t||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
+function buildIcs(trips){
+  const n=new Date();
+  const st=`${n.getUTCFullYear()}${pad(n.getUTCMonth()+1)}${pad(n.getUTCDate())}T${pad(n.getUTCHours())}${pad(n.getUTCMinutes())}00Z`;
+  const o=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Painel de Embarque//PT-BR','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Voos'];
+  trips.forEach(t=>t.legs.forEach(l=>{
+    const loc=l.locator||t.locator||'';
+    const desc=['Voo: '+(l.flight||''),loc?'Localizador: '+loc:'',l.seat?'Assento: '+l.seat:'',t.os||'','Embarque previsto: '+boardTime(l),'Check-in: '+ciUrl(l),'Status ao vivo: '+liveUrl(l)].filter(Boolean).join('\n');
+    o.push('BEGIN:VEVENT','UID:'+String(l.id||'x').replace(/[^A-Za-z0-9]/g,'')+'@painel-embarque','DTSTAMP:'+st,
+      'DTSTART:'+icsS(l.dt),'DTEND:'+icsS(l.at),
+      'SUMMARY:'+icsE('✈ '+l.from+'→'+l.to+' · '+(l.flight||'')),
+      'LOCATION:'+icsE((l.cities||'').split('→')[0].trim()+' ('+l.from+')'),
+      'DESCRIPTION:'+icsE(desc),'TRANSP:OPAQUE',
+      'BEGIN:VALARM','TRIGGER:-PT48H','ACTION:DISPLAY','DESCRIPTION:'+icsE('Check-in liberado: '+l.from+'→'+l.to+' ('+(l.flight||'')+')'),'END:VALARM',
+      'BEGIN:VALARM','TRIGGER:-PT3H','ACTION:DISPLAY','DESCRIPTION:'+icsE('Embarque em 3h: '+l.from+'→'+l.to),'END:VALARM',
+      'END:VEVENT');
+  }));
+  o.push('END:VCALENDAR');
+  return o.join('\r\n');
+}
+function dl(name,content,type){
+  const u=URL.createObjectURL(new Blob([content],{type}));
+  const a=document.createElement('a');a.href=u;a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+function expIcs(trips,fn){
+  const f=trips.map(t=>({...t,legs:t.legs.filter(l=>fut(l.dt))})).filter(t=>t.legs.length);
+  if(!f.length)return toast('Nenhum trecho futuro');
+  dl(fn,buildIcs(f),'text/calendar;charset=utf-8');
+  toast('Abra o arquivo baixado p/ importar');
 }
 
-async function loadState(){
-  const t = await storageGet('trips');
-  TRIPS = t ? JSON.parse(t) : null;
-  if (TRIPS === null){
-    // seed inicial com a viagem já conhecida (Navegantes-Vitória, 06/ago)
-    TRIPS = [{
-      id:'seed-721-722', routeName:'Navegantes ⇄ Vitória', os:'O.S. 721 / 722',
-      legs:[
-        {id:'l1', dt:'2026-08-06T06:10:00', at:'2026-08-06T07:35:00', from:'NVT', to:'GIG', flight:'G3 1857', cities:'Navegantes → Galeão'},
-        {id:'l2', dt:'2026-08-06T09:00:00', at:'2026-08-06T10:10:00', from:'GIG', to:'VIX', flight:'G3 1882', cities:'Galeão → Vitória'},
-        {id:'l3', dt:'2026-08-06T19:10:00', at:'2026-08-06T20:20:00', from:'VIX', to:'GIG', flight:'G3 1847', cities:'Vitória → Galeão'},
-        {id:'l4', dt:'2026-08-06T21:35:00', at:'2026-08-06T23:10:00', from:'GIG', to:'NVT', flight:'G3 1856', cities:'Galeão → Navegantes'}
-      ]
-    }];
-    await saveTrips();
-  }
-  const c = await storageGet('cars');
-  CARS = c ? JSON.parse(c) : [];
-}
-async function saveTrips(){ await storageSet('trips', JSON.stringify(TRIPS)); }
-async function saveCars(){ await storageSet('cars', JSON.stringify(CARS)); }
-async function getCheckin(legId){
-  const v = await storageGet('checkin:' + legId);
-  return v ? JSON.parse(v) : false;
-}
-async function setCheckin(legId, value){ await storageSet('checkin:' + legId, JSON.stringify(value)); }
-
-/* ---------- formatting ---------- */
-const fmtDate = (iso) => new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
-const fmtTime = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-
-/* ---------- PDF text reconstruction ---------- */
-async function extractPdfText(file){
-  const buf = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-  let fullText = '';
-  for (let p = 1; p <= pdf.numPages; p++){
-    const page = await pdf.getPage(p);
-    const content = await page.getTextContent();
-    const items = content.items
-      .map(item => ({ x: item.transform[4], y: item.transform[5], str: item.str }))
-      .filter(i => i.str.trim().length > 0);
-    items.sort((a, b) => (b.y - a.y) || (a.x - b.x));
-    const LINE_TOLERANCE = 3.5; // pontos de diferença em Y ainda considerados a mesma linha
-    const lines = [];
-    let current = [];
-    let lineRefY = null;
-    for (const it of items){
-      if (lineRefY === null || Math.abs(it.y - lineRefY) <= LINE_TOLERANCE){
-        current.push(it);
-        if (lineRefY === null) lineRefY = it.y; // fixa a referência no 1º item, evita deriva
-      } else {
-        lines.push(current);
-        current = [it];
-        lineRefY = it.y;
-      }
+/* ---- PDF ---- */
+async function pdfText(file){
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  let out='';
+  for(let p=1;p<=pdf.numPages;p++){
+    const it=(await(await pdf.getPage(p)).getTextContent()).items
+      .map(i=>({x:i.transform[4],y:i.transform[5],s:i.str})).filter(i=>i.s.trim());
+    it.sort((a,b)=>(b.y-a.y)||(a.x-b.x));
+    const L=[];let cur=[],ref=null;
+    for(const i of it){
+      if(ref===null||Math.abs(i.y-ref)<=3.5){cur.push(i);if(ref===null)ref=i.y}
+      else{L.push(cur);cur=[i];ref=i.y}
     }
-    if (current.length) lines.push(current);
-    lines.forEach(line => {
-      line.sort((a, b) => a.x - b.x);
-      fullText += line.map(i => i.str).join(' ') + '\n';
-    });
-    fullText += '\n';
+    if(cur.length)L.push(cur);
+    L.forEach(l=>{l.sort((a,b)=>a.x-b.x);out+=l.map(i=>i.s).join(' ')+'\n'});
+    out+='\n';
   }
-  return fullText;
+  return out;
+}
+function normAir(raw,code){
+  const r=(raw||'').toUpperCase();
+  if(r.includes('LATAM')||r.includes('TAM'))return 'LATAM';
+  if(r.includes('GOL'))return 'GOL';
+  if(r.includes('AZUL'))return 'Azul';
+  if(r.includes('AVIANCA'))return 'Avianca';
+  return ({AD:'Azul',G3:'GOL',LA:'LATAM',JJ:'LATAM',O6:'Avianca',AV:'Avianca'})[code]||(raw||'').trim()||code;
+}
+function parseFlight(text){
+  const os=text.match(/O\.S\.\s*(\d+)/);
+  const rt=text.match(/\n([A-ZÀ-Ú][A-ZÀ-Ú\s\-]{4,60})\s+LOCALIZADOR:\s*([A-Z0-9]+)/);
+  const lc=text.match(/LOCALIZADOR:\s*([A-Z0-9]{5,8})/);
+  const em=text.match(/Data Emiss(?:ã|a)o:\s*(\d{1,2})\/([a-zçA-Z]{3})\/(\d{4})/i);
+  let base=new Date();
+  if(em)base=new Date(+em[3],MONTHS[em[2].toLowerCase()],+em[1]);
+  const rx=/([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})\s+([A-Za-zÀ-úÇç\s]+?)\s+Escalas\s+\d+\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})/g;
+  const legs=[];let m;
+  while((m=rx.exec(text))!==null){
+    const[,cia,voo,,oC,oCode,dD,dM,dT,aRaw,tC,tCode,aD,aM,aT]=m;
+    const dMi=MONTHS[dM.toLowerCase()],aMi=MONTHS[aM.toLowerCase()];
+    if(dMi===undefined||aMi===undefined)continue;
+    let y=base.getFullYear();
+    if(dMi<base.getMonth()-6)y+=1;
+    const[dh,dmn]=dT.split(':').map(Number),[ah,amn]=aT.split(':').map(Number);
+    const dep=new Date(y,dMi,+dD,dh,dmn),arr=new Date(y,aMi,+aD,ah,amn);
+    const air=normAir(aRaw,cia);
+    legs.push({id:oCode+tCode+voo+toStr(dep),dt:toStr(dep),at:toStr(arr),from:oCode,to:tCode,
+      flight:air+' '+voo,airline:AIR[air]?air:null,locator:lc?lc[1]:'',
+      cities:oC.trim()+' → '+tC.trim(),gate:'',term:'',seat:'',note:''});
+  }
+  return {type:'flight',routeName:rt?rt[1].trim():'Viagem',os:os?'O.S. '+os[1]:'',
+    locator:lc?lc[1]:'',legs,est:(text.match(/\b[A-Z]{2}\s?\d{3,5}\s+[A-Z]\b/g)||[]).length};
+}
+function parseCar(text){
+  const cf=text.match(/CONFIRMATION LOC[\s\S]{0,40}?\n\s*([A-Z0-9]{8,12})/)||text.match(/N[uú]mero de confirma[cç][aã]o[\s\S]{0,20}?\n?\s*([A-Z0-9]{8,12})/i);
+  const pD=text.match(/Data de retirada\s*\n?\s*(\d{2})\/(\d{2})\/(\d{4})/i),pT=text.match(/Hor[aá]rio de retirada\s*\n?\s*(\d{2}:\d{2})/i);
+  const dD=text.match(/Data de devolu[cç][aã]o\s*\n?\s*(\d{2})\/(\d{2})\/(\d{4})/i),dT=text.match(/Hor[aá]rio de devolu[cç][aã]o\s*\n?\s*(\d{2}:\d{2})/i);
+  const lo=text.match(/Pick-Up Location:\s*([^\n]+)/i),vl=text.match(/Voucher Value[^\n]*BRL\s*([\d\.,]+)/i);
+  const mk=(d,t)=>{if(!d||!t)return null;const[h,mi]=t[1].split(':').map(Number);return toStr(new Date(+d[3],+d[2]-1,+d[1],h,mi))};
+  return{type:'car',confirmation:cf?cf[1]:null,location:lo?lo[1].trim():null,value:vl?vl[1]:null,pickupIso:mk(pD,pT),dropIso:mk(dD,dT)};
+}
+function detect(t){
+  if(/ROTEIRO DA VIAGEM/i.test(t)&&/LOCALIZADOR/i.test(t))return parseFlight(t);
+  if(/Voucher de Carro|Voucher Pr[eé]-Pago|CONFIRMATION LOC/i.test(t))return parseCar(t);
+  return{type:'unknown'};
 }
 
-/* ---------- flight parsing ---------- */
-function parseFlightPdf(text){
-  const osMatch = text.match(/O\.S\.\s*(\d+)/);
-  const routeMatch = text.match(/\n([A-ZÀ-Ú][A-ZÀ-Ú\s\-]{4,60})\s+LOCALIZADOR:\s*([A-Z0-9]+)/);
-  const emissaoMatch = text.match(/Data Emiss(?:ã|a)o:\s*(\d{1,2})\/([a-zçA-Z]{3})\/(\d{4})/i);
-  let emissaoDate = new Date();
-  if (emissaoMatch){
-    const mi = MONTHS[emissaoMatch[2].toLowerCase()];
-    emissaoDate = new Date(parseInt(emissaoMatch[3]), mi, parseInt(emissaoMatch[1]));
-  }
-  const legRegex = /([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})\s+([A-Za-zÀ-úÇç\s]+?)\s+Escalas\s+\d+\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})/g;
-  const legs = [];
-  let m;
-  while ((m = legRegex.exec(text)) !== null){
-    const [, ciaCode, voo, , origCityRaw, origCode, depD, depM, depT, airlineRaw, destCityRaw, destCode, arrD, arrM, arrT] = m;
-    const origCity = origCityRaw.trim(), destCity = destCityRaw.trim();
-    const depMi = MONTHS[depM.toLowerCase()], arrMi = MONTHS[arrM.toLowerCase()];
-    if (depMi === undefined || arrMi === undefined) continue;
-    let depYear = emissaoDate.getFullYear();
-    if (depMi < emissaoDate.getMonth() - 6) depYear += 1;
-    let arrYear = depYear;
-    const dep = new Date(depYear, depMi, parseInt(depD));
-    const [dh, dmin] = depT.split(':').map(Number);
-    dep.setHours(dh, dmin);
-    const arr = new Date(arrYear, arrMi, parseInt(arrD));
-    const [ah, amin] = arrT.split(':').map(Number);
-    arr.setHours(ah, amin);
-    legs.push({
-      id: origCode + destCode + voo + dep.toISOString(),
-      dt: dep.toISOString(), at: arr.toISOString(),
-      from: origCode, to: destCode, flight: normalizeAirline(airlineRaw, ciaCode) + ' ' + voo,
-      cities: origCity + ' → ' + destCity
-    });
-  }
-  const estimateMatches = text.match(/\b(?:[A-Z]{2})\s?\d{3,5}\s+[A-Z]\b/g) || [];
-  return {
-    type: 'flight',
-    routeName: routeMatch ? routeMatch[1].trim() : 'Viagem',
-    os: osMatch ? 'O.S. ' + osMatch[1] : '',
-    legs,
-    estimatedTotal: estimateMatches.length
-  };
-}
-
-function normalizeAirline(raw, code){
-  const r = (raw || '').trim().toUpperCase();
-  if (r.includes('LATAM') || r.includes('TAM')) return 'LATAM';
-  if (r.includes('GOL')) return 'GOL';
-  if (r.includes('AZUL')) return 'Azul';
-  if (r.includes('AVIANCA')) return 'Avianca';
-  if (raw && raw.trim()) return raw.trim();
-  const byCode = { AD:'Azul', G3:'GOL', LA:'LATAM', JJ:'LATAM', O6:'Avianca', AV:'Avianca' };
-  return byCode[code] || code;
-}
-
-/* ---------- car voucher parsing ---------- */
-function parseCarPdf(text){
-  const conf = text.match(/CONFIRMATION LOC[\s\S]{0,40}?\n\s*([A-Z0-9]{8,12})/) || text.match(/N[uú]mero de confirma[cç][aã]o[\s\S]{0,20}?\n?\s*([A-Z0-9]{8,12})/i);
-  const pickupDate = text.match(/Data de retirada\s*\n?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
-  const pickupTime = text.match(/Hor[aá]rio de retirada\s*\n?\s*(\d{2}:\d{2})/i);
-  const dropDate = text.match(/Data de devolu[cç][aã]o\s*\n?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
-  const dropTime = text.match(/Hor[aá]rio de devolu[cç][aã]o\s*\n?\s*(\d{2}:\d{2})/i);
-  const pickupLoc = text.match(/Pick-Up Location:\s*([^\n]+)/i);
-  const value = text.match(/Voucher Value[^\n]*BRL\s*([\d\.,]+)/i);
-  let pickupIso = null, dropIso = null;
-  if (pickupDate && pickupTime){
-    const [h,mi] = pickupTime[1].split(':').map(Number);
-    pickupIso = new Date(parseInt(pickupDate[3]), parseInt(pickupDate[2])-1, parseInt(pickupDate[1]), h, mi).toISOString();
-  }
-  if (dropDate && dropTime){
-    const [h,mi] = dropTime[1].split(':').map(Number);
-    dropIso = new Date(parseInt(dropDate[3]), parseInt(dropDate[2])-1, parseInt(dropDate[1]), h, mi).toISOString();
-  }
-  return {
-    type: 'car',
-    confirmation: conf ? conf[1] : null,
-    location: pickupLoc ? pickupLoc[1].trim() : null,
-    value: value ? value[1] : null,
-    pickupIso, dropIso
-  };
-}
-
-function detectAndParse(text){
-  if (/ROTEIRO DA VIAGEM/i.test(text) && /LOCALIZADOR/i.test(text)) return parseFlightPdf(text);
-  if (/Voucher de Carro|Voucher Pr[eé]-Pago|CONFIRMATION LOC/i.test(text)) return parseCarPdf(text);
-  return { type:'unknown' };
-}
-
-/* ---------- upload flow ---------- */
-const overlay = document.getElementById('overlay');
-const modalBody = document.getElementById('modal-body');
-const modalTitle = document.getElementById('modal-title');
-const modalSub = document.getElementById('modal-sub');
-
+/* ---- upload / review ---- */
+const ov=F('overlay'),mB=F('modal-body'),mT=F('modal-title'),mS=F('modal-sub'),cBtn=F('modal-confirm');
 async function handleFiles(files){
-  document.getElementById('dz-label').textContent = 'Lendo PDF…';
-  for (const file of files){
-    try{
-      const text = await extractPdfText(file);
-      const parsed = detectAndParse(text);
-      openReview(parsed, text, file.name);
-    }catch(err){
-      console.error(err);
-      alert('Não consegui ler "' + file.name + '". O PDF pode estar em formato de imagem (escaneado) — nesse caso a extração de texto não funciona.');
-    }
+  const lb=F('dz-label');lb.textContent='Lendo PDF…';
+  for(const f of files){
+    try{const t=await pdfText(f);review(detect(t),t,f.name)}
+    catch(e){console.error(e);alert('Não consegui ler "'+f.name+'". Pode ser PDF escaneado — use "Digitar voo".')}
   }
-  document.getElementById('dz-label').textContent = 'Enviar PDF de passagem ou voucher de carro';
+  lb.textContent='Enviar PDF de passagem ou voucher de carro';
 }
-
-function openReview(parsed, rawText, filename){
-  const now = new Date();
-  if (parsed.type === 'flight'){
-    const future = parsed.legs.filter(l => new Date(l.dt) > now);
-    const past = parsed.legs.length - future.length;
-    modalTitle.textContent = 'Voo detectado — ' + parsed.routeName;
-    modalSub.textContent = parsed.os + (past > 0 ? ' · ' + past + ' trecho(s) passado(s) ignorado(s) automaticamente' : '');
-    const mismatchWarning = (parsed.estimatedTotal > parsed.legs.length)
-      ? '<div class="review-row"><div class="rtxt"><b style="color:var(--rust);">⚠ Só consegui ler ' + parsed.legs.length + ' de aproximadamente ' + parsed.estimatedTotal + ' trecho(s) que parecem existir neste PDF.</b><div class="meta warn">Confira o texto bruto abaixo e complete o que faltar pelo formulário manual.</div></div></div>'
-      : '';
-    if (future.length === 0){
-      modalBody.innerHTML = mismatchWarning + '<div class="review-row"><div class="rtxt"><b>Nenhum trecho futuro encontrado neste PDF.</b><div class="meta">Todos os voos já ocorreram.</div></div></div>' + rawFallback(rawText);
-      document.getElementById('modal-confirm').style.display = 'none';
-    } else {
-      document.getElementById('modal-confirm').style.display = 'block';
-      modalBody.innerHTML = mismatchWarning + future.map((l,i) =>
-        '<div class="review-row"><input type="checkbox" checked data-idx="'+i+'">' +
-        '<div class="rtxt"><b>'+l.cities+'</b><div class="meta">'+fmtDate(l.dt)+' · '+fmtTime(l.dt)+' → '+fmtTime(l.at)+' · voo '+l.flight+'</div></div></div>'
-      ).join('') + rawFallback(rawText);
-    }
-    document.getElementById('modal-confirm').onclick = async () => {
-      const checked = [...modalBody.querySelectorAll('input[type=checkbox]:checked')].map(cb => future[parseInt(cb.dataset.idx)]);
-      if (checked.length){
-        TRIPS.push({ id: 'trip-' + Date.now(), routeName: parsed.routeName, os: parsed.os, legs: checked });
-        await saveTrips();
-        renderHero(); renderVoos();
-      }
-      closeReview();
+const rawFB=(t,o)=>'<details class="raw-fallback"'+(o?' open':'')+'><summary>Ver texto bruto do PDF</summary><textarea readonly>'+String(t).replace(/</g,'&lt;')+'</textarea></details>';
+const allIds=()=>new Set(TRIPS.flatMap(t=>t.legs.map(l=>l.id)));
+function review(p,raw,fn){
+  if(p.type==='flight'){
+    const known=allIds();
+    const nw=p.legs.filter(l=>fut(l.dt)&&!known.has(l.id));
+    const dup=p.legs.filter(l=>fut(l.dt)&&known.has(l.id)).length;
+    const pst=p.legs.filter(l=>!fut(l.dt)).length;
+    mT.textContent='Voo detectado — '+p.routeName;
+    mS.textContent=[p.os,pst?pst+' passado(s) ignorado(s)':'',dup?dup+' já no painel':''].filter(Boolean).join(' · ');
+    const w=p.est>p.legs.length?'<div class="review-row"><div class="rtxt"><b style="color:var(--rust)">⚠ Li '+p.legs.length+' de ~'+p.est+' trecho(s).</b><div class="warn">Complete o resto em "Digitar voo".</div></div></div>':'';
+    if(!nw.length){mB.innerHTML=w+'<div class="review-row"><div class="rtxt"><b>Nenhum trecho novo e futuro.</b></div></div>'+rawFB(raw);cBtn.style.display='none'}
+    else{cBtn.style.display='block';
+      mB.innerHTML=w+nw.map((l,i)=>'<div class="review-row"><input type="checkbox" checked data-i="'+i+'"><div class="rtxt"><b>'+l.cities+'</b><div class="meta">'+fDW(l.dt)+' · '+fT(l.dt)+' → '+fT(l.at)+' · '+l.flight+(l.locator?' · '+l.locator:'')+'</div></div></div>').join('')+rawFB(raw)}
+    cBtn.onclick=()=>{
+      const ch=[...mB.querySelectorAll('input:checked')].map(c=>nw[+c.dataset.i]);
+      if(ch.length){TRIPS.push({id:'trip-'+Date.now(),routeName:p.routeName,os:p.os,locator:p.locator,legs:ch});save();render();toast(ch.length+' trecho(s) adicionado(s)')}
+      closeRev();
     };
-  } else if (parsed.type === 'car'){
-    modalTitle.textContent = 'Locação de carro detectada';
-    modalSub.textContent = parsed.location || filename;
-    const isFuture = parsed.pickupIso && new Date(parsed.pickupIso) > now;
-    if (!isFuture){
-      modalBody.innerHTML = '<div class="review-row"><div class="rtxt"><b>Data de retirada já passou (ou não foi encontrada).</b><div class="meta">Esta locação não será adicionada ao painel.</div></div></div>' + rawFallback(rawText);
-      document.getElementById('modal-confirm').style.display = 'none';
-    } else {
-      document.getElementById('modal-confirm').style.display = 'block';
-      modalBody.innerHTML =
-        '<div class="review-row"><input type="checkbox" checked id="car-check">' +
-        '<div class="rtxt"><b>' + (parsed.location || 'Local não identificado') + '</b>' +
-        '<div class="meta">Retirada: ' + (parsed.pickupIso ? fmtDate(parsed.pickupIso)+' '+fmtTime(parsed.pickupIso) : '—') + '</div>' +
-        '<div class="meta">Devolução: ' + (parsed.dropIso ? fmtDate(parsed.dropIso)+' '+fmtTime(parsed.dropIso) : '—') + '</div>' +
-        (parsed.value ? '<div class="meta">Valor: BRL ' + parsed.value + '</div>' : '') +
-        '</div></div>' + rawFallback(rawText);
-    }
-    document.getElementById('modal-confirm').onclick = async () => {
-      const cb = document.getElementById('car-check');
-      if (cb && cb.checked){
-        CARS.push({ id:'car-' + Date.now(), ...parsed });
-        await saveCars();
-        renderCarro();
-      }
-      closeReview();
-    };
-  } else {
-    modalTitle.textContent = 'Não reconheci este formato';
-    modalSub.textContent = filename;
-    modalBody.innerHTML = '<div class="review-row"><div class="rtxt"><b>Não é um roteiro de voo nem um voucher de carro conhecido.</b><div class="meta warn">Confira o texto extraído abaixo — pode ser um layout novo que o parser ainda não entende.</div></div></div>' + rawFallback(rawText, true);
-    document.getElementById('modal-confirm').style.display = 'none';
+  }else if(p.type==='car'){
+    mT.textContent='Locação detectada';mS.textContent=p.location||fn;
+    if(!(p.pickupIso&&fut(p.pickupIso))){mB.innerHTML='<div class="review-row"><div class="rtxt"><b>Retirada já passou ou não encontrada.</b></div></div>'+rawFB(raw);cBtn.style.display='none'}
+    else{cBtn.style.display='block';
+      mB.innerHTML='<div class="review-row"><input type="checkbox" checked id="cc"><div class="rtxt"><b>'+(p.location||'Local não identificado')+'</b><div class="meta">Retirada: '+fDW(p.pickupIso)+' '+fT(p.pickupIso)+'</div><div class="meta">Devolução: '+(p.dropIso?fDW(p.dropIso)+' '+fT(p.dropIso):'—')+'</div>'+(p.value?'<div class="meta">BRL '+p.value+'</div>':'')+'</div></div>'+rawFB(raw)}
+    cBtn.onclick=()=>{const c=F('cc');if(c&&c.checked){CARS.push({id:'car-'+Date.now(),...p});save();render();toast('Locação adicionada')}closeRev()};
+  }else{
+    mT.textContent='Formato não reconhecido';mS.textContent=fn;
+    mB.innerHTML='<div class="review-row"><div class="rtxt"><b>Não é roteiro nem voucher conhecido.</b><div class="warn">Use "Digitar voo" — leva 30s.</div></div></div>'+rawFB(raw,true);
+    cBtn.style.display='none';
   }
-  overlay.classList.add('open'); lockBodyScroll();
+  ov.classList.add('open');lock();
 }
-function rawFallback(text, open){
-  return '<details class="raw-fallback"'+(open?' open':'')+'><summary>Ver texto bruto extraído do PDF</summary><textarea readonly>'+text.replace(/</g,'&lt;')+'</textarea></details>';
-}
-function closeReview(){ overlay.classList.remove('open'); unlockBodyScroll(); }
-document.getElementById('modal-cancel').onclick = closeReview;
+const closeRev=()=>{ov.classList.remove('open');unlock()};
+F('modal-cancel').onclick=closeRev;
+const lock=()=>document.body.classList.add('modal-open');
+const unlock=()=>document.body.classList.remove('modal-open');
 
-function preventScrollOutsideModal(e){
-  if (!e.target.closest('.modal')) e.preventDefault();
+/* ---- form manual ---- */
+const ovM=F('overlay-manual');
+let st={mode:'add'};
+const MF=['m-from','m-to','m-cities','m-date','m-num','m-dep','m-arr','m-locator','m-term','m-gate','m-seat','m-label'];
+function resetF(){MF.forEach(i=>F(i).value='');F('m-airline').value='';st={mode:'add'};F('manual-title').textContent='Adicionar voo';F('manual-submit').textContent='Adicionar'}
+F('open-manual').onclick=()=>{resetF();ovM.classList.add('open');lock()};
+F('manual-cancel').onclick=()=>{ovM.classList.remove('open');unlock();resetF()};
+function openEdit(tid,lid){
+  const t=TRIPS.find(x=>x.id===tid),l=t&&t.legs.find(x=>x.id===lid);
+  if(!l)return;
+  const d=parseL(l.dt),a=parseL(l.at);
+  F('m-from').value=l.from;F('m-to').value=l.to;F('m-cities').value=l.cities;
+  F('m-date').value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  F('m-airline').value=airOf(l)||'';F('m-num').value=flightNum(l);
+  F('m-dep').value=`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  F('m-arr').value=`${pad(a.getHours())}:${pad(a.getMinutes())}`;
+  F('m-locator').value=l.locator||t.locator||'';
+  F('m-term').value=l.term||'';F('m-gate').value=l.gate||'';F('m-seat').value=l.seat||'';
+  F('m-label').value=t.routeName;
+  st={mode:'edit',tid,lid};F('manual-title').textContent='Editar trecho';F('manual-submit').textContent='Salvar';
+  ovM.classList.add('open');lock();
 }
-function lockBodyScroll(){
-  document.body.classList.add('modal-open');
-  document.addEventListener('touchmove', preventScrollOutsideModal, { passive: false });
+function openAdd(tid){
+  const t=TRIPS.find(x=>x.id===tid);if(!t)return;
+  resetF();F('m-label').value=t.routeName;F('m-locator').value=t.locator||'';
+  st={mode:'addToTrip',tid};F('manual-title').textContent='+ Trecho — '+t.routeName;F('manual-submit').textContent='Adicionar trecho';
+  ovM.classList.add('open');lock();
 }
-function unlockBodyScroll(){
-  document.body.classList.remove('modal-open');
-  document.removeEventListener('touchmove', preventScrollOutsideModal, { passive: false });
-}
-
-const overlayManual = document.getElementById('overlay-manual');
-let formState = { mode: 'add' }; // 'add' | 'edit' | 'addToTrip'
-
-function resetManualModeToAdd(){
-  formState = { mode: 'add' };
-  document.getElementById('manual-title').textContent = 'Adicionar voo manualmente';
-  document.getElementById('manual-submit').textContent = 'Adicionar ao painel';
-  document.getElementById('manual-form').reset();
-}
-
-document.getElementById('open-manual').onclick = () => {
-  resetManualModeToAdd();
-  overlayManual.classList.add('open'); lockBodyScroll();
+F('manual-submit').onclick=()=>{
+  try{
+    const from=F('m-from').value.toUpperCase().trim(),to=F('m-to').value.toUpperCase().trim();
+    let cities=F('m-cities').value.trim();
+    const date=F('m-date').value,dep=F('m-dep').value,arr=F('m-arr').value;
+    const air=F('m-airline').value||null,num=F('m-num').value.replace(/\D/g,'');
+    if(!from||!to||!date||!dep||!arr)return alert('Preencha origem, destino, data e os dois horários.');
+    if(!cities)cities=(IATA[from]||from)+' → '+(IATA[to]||to);
+    const flight=((air&&air!=='Outra')?air:'Voo')+(num?' '+num:'');
+    const dt=new Date(date+'T'+dep+':00'),at=new Date(date+'T'+arr+':00');
+    if(at<=dt)at.setDate(at.getDate()+1);
+    const leg={id:from+to+flight+toStr(dt),dt:toStr(dt),at:toStr(at),from,to,flight,cities,
+      airline:(air&&air!=='Outra')?air:null,locator:F('m-locator').value.toUpperCase().trim(),
+      term:F('m-term').value.toUpperCase().trim(),gate:F('m-gate').value.toUpperCase().trim(),
+      seat:F('m-seat').value.toUpperCase().trim(),note:''};
+    const label=F('m-label').value.trim();
+    if(st.mode==='edit'){
+      const t=TRIPS.find(x=>x.id===st.tid);if(!t)return alert('Viagem não encontrada.');
+      const i=t.legs.findIndex(x=>x.id===st.lid);
+      leg.note=t.legs[i].note||'';leg.id=st.lid;t.legs[i]=leg;
+      if(label)t.routeName=label;if(leg.locator)t.locator=leg.locator;
+    }else if(st.mode==='addToTrip'){
+      const t=TRIPS.find(x=>x.id===st.tid);if(!t)return alert('Viagem não encontrada.');
+      t.legs.push(leg);t.legs.sort((a,b)=>parseL(a.dt)-parseL(b.dt));
+    }else TRIPS.push({id:'trip-'+Date.now(),routeName:label||cities,os:'',locator:leg.locator,legs:[leg]});
+    save();render();ovM.classList.remove('open');unlock();resetF();toast('Salvo');
+  }catch(e){console.error(e);alert('Não consegui salvar: '+e.message)}
 };
-document.getElementById('manual-cancel').onclick = () => { overlayManual.classList.remove('open'); unlockBodyScroll(); resetManualModeToAdd(); };
+const IATA={JOI:'Joinville',NVT:'Navegantes',GRU:'Guarulhos',CGH:'Congonhas',GIG:'Galeão',SDU:'Santos Dumont',VIX:'Vitória',CWB:'Curitiba',POA:'Porto Alegre',BSB:'Brasília',CNF:'Confins',PLU:'Pampulha',SSA:'Salvador',REC:'Recife',FOR:'Fortaleza',VCP:'Viracopos',FLN:'Florianópolis',MAO:'Manaus',BEL:'Belém',NAT:'Natal',GYN:'Goiânia',CGB:'Cuiabá',SLZ:'São Luís',AJU:'Aracaju',MCZ:'Maceió',THE:'Teresina',JPA:'João Pessoa',PMW:'Palmas',CGR:'Campo Grande',IGU:'Foz do Iguaçu',LDB:'Londrina',UDI:'Uberlândia',RAO:'Ribeirão Preto',XAP:'Chapecó',CXJ:'Caxias do Sul',PVH:'Porto Velho',RBR:'Rio Branco',BVB:'Boa Vista',MCP:'Macapá',JJD:'Jericoacoara',IOS:'Ilhéus',PET:'Pelotas',NVR:'Novo Progresso',MGF:'Maringá',CAC:'Cascavel',JCB:'Joaçaba',SJP:'S.J. Rio Preto',BPS:'Porto Seguro',VDC:'Vitória Conquista',MOC:'Montes Claros',IPN:'Ipatinga',JDO:'Juazeiro do Norte',PNZ:'Petrolina',STM:'Santarém',SJK:'S.J. Campos',NVG:'Navegantes'};
+function autoCity(){const a=IATA[F('m-from').value.toUpperCase().trim()],b=IATA[F('m-to').value.toUpperCase().trim()];if(a&&b&&!F('m-cities').value.trim())F('m-cities').value=a+' → '+b}
+F('m-from').onblur=autoCity;F('m-to').onblur=autoCity;
 
-function openManualForEdit(tripId, legId){
-  const trip = TRIPS.find(t => t.id === tripId);
-  const leg = trip && trip.legs.find(l => l.id === legId);
-  if (!trip || !leg) return;
-  document.getElementById('m-from').value = leg.from;
-  document.getElementById('m-to').value = leg.to;
-  document.getElementById('m-cities').value = leg.cities;
-  const d = new Date(leg.dt), a = new Date(leg.at);
-  const pad = n => String(n).padStart(2,'0');
-  document.getElementById('m-date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  document.getElementById('m-flight').value = leg.flight;
-  document.getElementById('m-dep').value = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  document.getElementById('m-arr').value = `${pad(a.getHours())}:${pad(a.getMinutes())}`;
-  document.getElementById('m-label').value = trip.routeName;
-  formState = { mode: 'edit', tripId, legId };
-  document.getElementById('manual-title').textContent = 'Editar trecho';
-  document.getElementById('manual-submit').textContent = 'Salvar alterações';
-  overlayManual.classList.add('open'); lockBodyScroll();
+/* ---- portão / aeroporto ---- */
+const ovG=F('overlay-gate');let gCtx=null;
+function openGate(tid,lid){
+  const t=TRIPS.find(x=>x.id===tid),l=t&&t.legs.find(x=>x.id===lid);
+  if(!l)return;
+  gCtx={tid,lid};
+  F('gate-sub').textContent=l.flight+' · '+l.from+'→'+l.to+' · '+fDW(l.dt)+' '+fT(l.dt);
+  F('g-term').value=l.term||'';F('g-gate').value=l.gate||'';F('g-seat').value=l.seat||'';F('g-note').value=l.note||'';
+  ovG.classList.add('open');lock();
 }
+F('gate-cancel').onclick=()=>{ovG.classList.remove('open');unlock()};
+F('gate-save').onclick=()=>{
+  const t=TRIPS.find(x=>x.id===gCtx.tid),l=t&&t.legs.find(x=>x.id===gCtx.lid);
+  if(l){l.term=F('g-term').value.toUpperCase().trim();l.gate=F('g-gate').value.toUpperCase().trim();
+    l.seat=F('g-seat').value.toUpperCase().trim();l.note=F('g-note').value.trim();save();render();toast('Atualizado')}
+  ovG.classList.remove('open');unlock();
+};
 
-function openManualAddToTrip(tripId){
-  const trip = TRIPS.find(t => t.id === tripId);
-  if (!trip) return;
-  document.getElementById('manual-form').reset();
-  document.getElementById('m-label').value = trip.routeName;
-  formState = { mode: 'addToTrip', tripId };
-  document.getElementById('manual-title').textContent = 'Adicionar trecho — ' + trip.routeName;
-  document.getElementById('manual-submit').textContent = 'Adicionar trecho';
-  overlayManual.classList.add('open'); lockBodyScroll();
+/* ---- backup ---- */
+function expBk(){
+  dl('painel-voos-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({trips:TRIPS,cars:CARS,checkins:CHECKINS,exportedAt:new Date().toISOString(),v:3},null,2),'application/json');
+  lsSet('lastBackup',new Date().toISOString());renderBanner();toast('Backup baixado');
 }
-
-document.getElementById('manual-submit').addEventListener('click', async (e) => {
-  e.preventDefault();
+async function impBk(file){
   try{
-    const from = document.getElementById('m-from').value.toUpperCase().trim();
-    const to = document.getElementById('m-to').value.toUpperCase().trim();
-    const cities = document.getElementById('m-cities').value.trim();
-    const date = document.getElementById('m-date').value;
-    const flight = document.getElementById('m-flight').value.trim();
-    const dep = document.getElementById('m-dep').value;
-    const arr = document.getElementById('m-arr').value;
-    const label = document.getElementById('m-label').value.trim();
-    if (!from || !to || !date || !dep || !arr){
-      alert('Preencha origem, destino, data e os dois horários.');
-      return;
-    }
-    const dt = new Date(date + 'T' + dep + ':00');
-    const at = new Date(date + 'T' + arr + ':00');
-    if (at <= dt) at.setDate(at.getDate() + 1); // chegada no dia seguinte (voo noturno)
-
-    if (formState.mode === 'edit'){
-      const trip = TRIPS.find(t => t.id === formState.tripId);
-      if (!trip){ alert('Não encontrei a viagem original — feche e edite de novo pelo card.'); return; }
-      const idx = trip.legs.findIndex(l => l.id === formState.legId);
-      trip.legs[idx] = { id: formState.legId, dt: dt.toISOString(), at: at.toISOString(), from, to, flight, cities };
-      if (label) trip.routeName = label;
-    } else if (formState.mode === 'addToTrip'){
-      const trip = TRIPS.find(t => t.id === formState.tripId);
-      if (!trip){ alert('Não encontrei a viagem — feche e use "+ Adicionar trecho" pelo card de novo.'); return; }
-      const leg = { id: from+to+flight+dt.toISOString(), dt: dt.toISOString(), at: at.toISOString(), from, to, flight, cities };
-      trip.legs.push(leg);
-      trip.legs.sort((a,b) => new Date(a.dt) - new Date(b.dt));
-    } else {
-      const leg = { id: from+to+flight+dt.toISOString(), dt: dt.toISOString(), at: at.toISOString(), from, to, flight, cities };
-      TRIPS.push({ id: 'trip-' + Date.now(), routeName: label || cities, os: '', legs: [leg] });
-    }
-    await saveTrips();
-    renderHero(); renderVoos();
-    overlayManual.classList.remove('open'); unlockBodyScroll();
-    resetManualModeToAdd();
-  }catch(err){
-    console.error(err);
-    alert('Não consegui salvar: ' + err.message + '\nOs dados no formulário não foram perdidos, tente de novo.');
-  }
-});
-
-async function exportBackup(){
-  const checkins = {};
-  for (const trip of TRIPS){
-    for (const leg of trip.legs){
-      checkins[leg.id] = await getCheckin(leg.id);
-    }
-  }
-  const payload = { trips: TRIPS, cars: CARS, checkins, exportedAt: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'painel-voos-backup.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+    const p=JSON.parse(await file.text());
+    if(!p||!Array.isArray(p.trips))throw new Error('Não é um backup deste painel.');
+    if(!confirm('Isso substitui os dados atuais deste aparelho. Continuar?'))return;
+    TRIPS=p.trips;CARS=Array.isArray(p.cars)?p.cars:[];CHECKINS=p.checkins||{};
+    TRIPS.forEach(t=>t.legs.forEach(l=>{l.dt=norm(l.dt);l.at=norm(l.at)}));
+    save();render();toast('Backup restaurado');
+  }catch(e){alert('Não consegui importar: '+e.message)}
+}
+F('export-backup').onclick=expBk;
+F('import-backup').onchange=e=>{if(e.target.files.length)impBk(e.target.files[0]);e.target.value=''};
+F('export-ics').onclick=()=>expIcs(TRIPS,'voos.ics');
+function renderBanner(){
+  const el=F('backup-banner'),last=lsGet('lastBackup');
+  const old=!last||(Date.now()-new Date(last))>BACKUP_DAYS*86400000;
+  if((TRIPS.length||CARS.length)&&old){
+    el.innerHTML='<div class="banner"><span>Seus dados vivem só neste aparelho. Baixe um backup de segurança.</span><button id="bkn">Baixar</button></div>';
+    F('bkn').onclick=expBk;
+  }else el.innerHTML='';
 }
 
-async function importBackupFile(file){
-  try{
-    const text = await file.text();
-    const payload = JSON.parse(text);
-    if (!payload || !Array.isArray(payload.trips)) throw new Error('Arquivo não parece ser um backup válido deste painel.');
-    TRIPS = payload.trips;
-    CARS = Array.isArray(payload.cars) ? payload.cars : [];
-    await saveTrips();
-    await saveCars();
-    if (payload.checkins){
-      for (const [legId, val] of Object.entries(payload.checkins)){
-        await setCheckin(legId, val);
-      }
-    }
-    renderHero(); renderVoos(); renderCarro();
-    alert('Backup importado com sucesso.');
-  }catch(err){
-    alert('Não consegui importar esse arquivo: ' + err.message);
-  }
+/* ---- dropzone ---- */
+const dz=F('dropzone'),fi=F('file-input');
+fi.onchange=e=>{if(e.target.files.length)handleFiles(e.target.files);fi.value=''};
+['dragover','dragenter'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.add('drag')}));
+['dragleave','drop'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove('drag')}));
+dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files)});
+
+/* ---- render ---- */
+let flap=null;
+function splitFlap(el,txt){
+  if(flap)clearInterval(flap);
+  const cs='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 →';let f=0;const N=10;
+  flap=setInterval(()=>{
+    if(!document.body.contains(el)||f>=N){if(document.body.contains(el))el.textContent=txt;clearInterval(flap);flap=null;return}
+    let o='';for(let i=0;i<txt.length;i++)o+=(i<(f/N)*txt.length)?txt[i]:cs[Math.floor(Math.random()*cs.length)];
+    el.textContent=o;f++;
+  },35);
 }
-
-document.getElementById('export-backup').addEventListener('click', exportBackup);
-document.getElementById('import-backup').addEventListener('change', (e) => {
-  if (e.target.files.length) importBackupFile(e.target.files[0]);
-  e.target.value = '';
-});
-
-const dz = document.getElementById('dropzone');
-const fileInput = document.getElementById('file-input');
-fileInput.addEventListener('change', e => { if (e.target.files.length) handleFiles(e.target.files); fileInput.value = ''; });
-['dragover','dragenter'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
-['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
-dz.addEventListener('drop', e => { if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
-
-/* ---------- render ---------- */
-function splitFlap(el, finalText){
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 →';
-  const len = finalText.length;
-  let frame = 0; const totalFrames = 10;
-  const iv = setInterval(() => {
-    if (frame >= totalFrames){ el.textContent = finalText; clearInterval(iv); return; }
-    let out = '';
-    for(let i=0;i<len;i++){ out += (i < (frame/totalFrames)*len) ? finalText[i] : chars[Math.floor(Math.random()*chars.length)]; }
-    el.textContent = out; frame++;
-  }, 35);
+function nextLeg(){
+  const n=new Date();let L=null,T=null;
+  TRIPS.forEach(t=>t.legs.forEach(l=>{const d=parseL(l.dt);if(d>n&&(!L||d<parseL(L.dt))){L=l;T=t}}));
+  return{L,T};
 }
-
-function renderHero(){
-  const now = new Date();
-  let nextLeg = null, nextTrip = null;
-  for (const trip of TRIPS){
-    for (const leg of trip.legs){
-      const dt = new Date(leg.dt);
-      if (dt > now && (!nextLeg || dt < new Date(nextLeg.dt))){ nextLeg = leg; nextTrip = trip; }
-    }
-  }
-  const hero = document.getElementById('hero');
-  if (!nextLeg){
-    hero.innerHTML = '<div class="eyebrow">Sem viagens futuras</div><div class="countdown">—</div>';
-    return;
-  }
-  const diffMs = new Date(nextLeg.dt) - now;
-  const days = Math.floor(diffMs / 86400000), hours = Math.floor((diffMs % 86400000) / 3600000);
-  const countdownText = days > 0 ? `${days}D ${hours}H` : `${hours}H`;
-  hero.innerHTML = `<div class="eyebrow">Próximo embarque</div><div class="countdown" id="hero-countdown"></div>
-    <div class="route">${nextTrip.routeName} · <b>${fmtDate(nextLeg.dt)}</b> às <b>${fmtTime(nextLeg.dt)}</b> (${nextLeg.from} → ${nextLeg.to})</div>`;
-  splitFlap(document.getElementById('hero-countdown'), countdownText);
+function renderHero(anim){
+  const{L,T}=nextLeg(),h=F('hero');
+  if(!L){h.innerHTML='<div class="eyebrow">Sem viagens futuras</div><div class="countdown">—</div><div class="route">Adicione um voo para começar.</div>';return}
+  const ms=parseL(L.dt)-new Date();
+  const d=Math.floor(ms/86400000),hh=Math.floor(ms%86400000/3600000),mi=Math.floor(ms%3600000/60000);
+  const txt=d>0?`${d}D ${hh}H ${mi}M`:(hh>0?`${hh}H ${mi}M`:`${mi}M`);
+  const hrs=ms/3600000,ci=!!CHECKINS[L.id];
+  const tag=ci?'<span style="color:var(--green)">✓ check-in feito</span>':(hrs<=CI_WINDOW?'<span style="color:var(--amber)">⚠ check-in liberado</span>':'');
+  const g=(hrs<=LIVE_WINDOW)?`<br><b style="color:var(--amber)">Embarque ${boardTime(L)}</b>${L.gate?' · Portão <b style="color:var(--amber)">'+L.gate+'</b>':''}${L.term?' · Term. '+L.term:''}${L.seat?' · Assento '+L.seat:''}`:'';
+  h.innerHTML=`<div class="eyebrow">Próximo embarque</div><div class="countdown" id="hc">${anim?'':txt}</div>
+    <div class="route">${T.routeName} · <b>${fDW(L.dt)}</b> às <b>${fT(L.dt)}</b> (${L.from} → ${L.to})${tag?' · '+tag:''}${g}</div>`;
+  if(anim)splitFlap(F('hc'),txt);
 }
-
-async function renderVoos(){
-  const container = document.getElementById('tab-voos');
-  const now = new Date();
-  const visibleTrips = TRIPS.filter(t => t.legs.some(l => new Date(l.dt) > now));
-  if (visibleTrips.length === 0){
-    container.innerHTML = '<div class="card"><div class="empty"><div class="big">NADA PROGRAMADO</div>Envie um PDF de passagem acima para adicionar uma viagem.</div></div>';
-    return;
-  }
-  visibleTrips.sort((a,b) => new Date(a.legs[0].dt) - new Date(b.legs[0].dt));
-  let html = '';
-  for (const trip of visibleTrips){
-    html += `<div class="card" data-trip="${trip.id}"><div class="card-head"><div><div class="route-name">${trip.routeName}</div></div><div style="display:flex;align-items:center;gap:10px;"><div class="os">${trip.os}</div><button class="del" data-del-trip="${trip.id}" title="Remover">×</button></div></div>`;
-    for (const leg of trip.legs.filter(l => new Date(l.dt) > now)){
-      const statusUrl = 'https://www.google.com/search?q=' + encodeURIComponent(leg.flight + ' ' + fmtDate(leg.dt).replace('/', '/'));
-      html += `<div class="leg"><a class="flap" href="${statusUrl}" target="_blank" rel="noopener" title="Ver status ao vivo no Google" style="text-decoration:none;">${leg.flight} ↗</a><div class="mid"><div class="cities">${leg.cities}</div><div class="meta">${fmtDate(leg.dt)} · ${fmtTime(leg.dt)} → ${fmtTime(leg.at)}</div></div><div style="display:flex;gap:6px;align-items:center;"><button class="edit-btn" data-edit-trip="${trip.id}" data-edit-leg="${leg.id}" title="Editar">✎</button><button class="status-btn" data-leg-btn="${leg.id}">…</button></div></div>`;
-    }
-    html += `<button class="add-leg-btn" data-add-trip="${trip.id}">+ Adicionar trecho a esta viagem</button></div>`;
-  }
-  container.innerHTML = html;
-
-  container.querySelectorAll('[data-del-trip]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      TRIPS = TRIPS.filter(t => t.id !== btn.dataset.delTrip);
-      await saveTrips(); renderHero(); renderVoos();
-    });
+function copyTxt(t,msg){
+  const done=()=>toast(msg);
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,done);
+  else{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a);done()}
+}
+function renderVoos(){
+  const c=F('tab-voos');
+  const vis=TRIPS.filter(t=>t.legs.some(l=>fut(l.dt)));
+  if(!vis.length){c.innerHTML='<div class="card"><div class="empty"><div class="big">NADA PROGRAMADO</div>Envie um PDF ou toque em "Digitar voo".</div></div>';return}
+  vis.sort((a,b)=>{
+    const fa=Math.min(...a.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt)));
+    const fb=Math.min(...b.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt)));
+    return fa-fb;
   });
-
-  container.querySelectorAll('[data-edit-leg]').forEach(btn => {
-    btn.addEventListener('click', () => openManualForEdit(btn.dataset.editTrip, btn.dataset.editLeg));
-  });
-
-  container.querySelectorAll('[data-add-trip]').forEach(btn => {
-    btn.addEventListener('click', () => openManualAddToTrip(btn.dataset.addTrip));
-  });
-
-  for (const trip of visibleTrips){
-    for (const leg of trip.legs.filter(l => new Date(l.dt) > now)){
-      const btn = container.querySelector(`[data-leg-btn="${leg.id}"]`);
-      if (!btn) continue;
-      const done = await getCheckin(leg.id);
-      updateBtn(btn, done, (new Date(leg.dt) - now) / 3600000);
-      btn.addEventListener('click', async () => {
-        const hoursNow = (new Date(leg.dt) - new Date()) / 3600000;
-        const cur = await getCheckin(leg.id);
-        if (!cur && hoursNow > CHECKIN_WINDOW_HOURS) return; // travado — check-in ainda não liberado
-        const next = !cur;
-        await setCheckin(leg.id, next);
-        updateBtn(btn, next, hoursNow);
-      });
+  let h='';
+  for(const t of vis){
+    const legs=t.legs.filter(l=>fut(l.dt));
+    const live=legs.some(l=>hrsTo(l.dt)<=LIVE_WINDOW);
+    h+=`<div class="card${live?' live':''}"><div class="card-head"><div>${live?'<div class="livetag">● Em andamento</div>':''}<div class="route-name">${t.routeName}</div>${t.locator?`<div class="os">Loc. ${t.locator}</div>`:''}</div>
+      <div style="display:flex;align-items:center;gap:6px"><div class="os">${t.os||''}</div><button class="hbtn" data-ics="${t.id}" title="Calendário">📅</button><button class="hbtn del" data-del="${t.id}">×</button></div></div>`;
+    for(const l of legs){
+      const hrs=hrsTo(l.dt),done=!!CHECKINS[l.id],lv=hrs<=LIVE_WINDOW;
+      let ci;
+      if(done)ci=`<button class="chip done" data-ci="${l.id}" data-t="${t.id}">✓ Check-in feito</button>`;
+      else if(hrs<=CI_WINDOW)ci=`<button class="chip ready" data-ci="${l.id}" data-t="${t.id}">Fazer check-in ↗</button>`;
+      else ci=`<span class="chip locked">Libera em ${Math.ceil(hrs-CI_WINDOW)}h</span>`;
+      const loc=l.locator||t.locator||'';
+      h+=`<div class="leg">
+        <div class="legtop">
+          <div class="flap">${l.flight}</div>
+          <div class="mid"><div class="cities">${l.cities}</div>
+            <div class="meta">${fDW(l.dt)} · ${fT(l.dt)} → ${fT(l.at)}${loc?` · <span class="loc">${loc}</span>`:''}</div></div>
+          <button class="hbtn" data-ed="${l.id}" data-t="${t.id}" title="Editar">✎</button>
+        </div>
+        ${lv?`<div class="gateboard">
+          <div class="gcell" data-g="${l.id}" data-t="${t.id}"><div class="gl">Portão</div><div class="gv${l.gate?'':' off'}">${l.gate||'--'}</div></div>
+          <div class="gcell" data-g="${l.id}" data-t="${t.id}"><div class="gl">Term.</div><div class="gv${l.term?'':' off'}">${l.term||'--'}</div></div>
+          <div class="gcell" data-g="${l.id}" data-t="${t.id}"><div class="gl">Assento</div><div class="gv${l.seat?'':' off'}">${l.seat||'--'}</div></div>
+          <div class="gcell"><div class="gl">Embarque</div><div class="gv">${boardTime(l)}</div></div>
+        </div>${l.note?`<div class="meta" style="color:var(--rust);margin-top:7px">⚠ ${l.note}</div>`:''}`:''}
+        <div class="legbot">
+          ${ci}
+          <a class="chip${lv?' fill':''}" href="${liveUrl(l)}" target="_blank" rel="noopener">📡 Ao vivo</a>
+          <button class="chip" data-g="${l.id}" data-t="${t.id}">🚪 Portão</button>
+          ${loc?`<button class="chip" data-cp="${loc}">⧉ ${loc}</button>`:''}
+        </div></div>`;
     }
+    h+=`<button class="add-leg-btn" data-add="${t.id}">+ Adicionar trecho a esta viagem</button></div>`;
   }
+  c.innerHTML=h;
+  c.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('Remover esta viagem?')){TRIPS=TRIPS.filter(t=>t.id!==b.dataset.del);save();render()}});
+  c.querySelectorAll('[data-ics]').forEach(b=>b.onclick=()=>{const t=TRIPS.find(x=>x.id===b.dataset.ics);if(t)expIcs([t],(t.routeName||'viagem').replace(/[^\w]+/g,'-').toLowerCase()+'.ics')});
+  c.querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>openEdit(b.dataset.t,b.dataset.ed));
+  c.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>openAdd(b.dataset.add));
+  c.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>openGate(b.dataset.t,b.dataset.g));
+  c.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copyTxt(b.dataset.cp,'Localizador copiado'));
+  c.querySelectorAll('[data-ci]').forEach(b=>b.onclick=()=>{
+    const t=TRIPS.find(x=>x.id===b.dataset.t),l=t&&t.legs.find(x=>x.id===b.dataset.ci);
+    if(!l)return;
+    if(CHECKINS[l.id]){if(confirm('Desmarcar o check-in?')){delete CHECKINS[l.id];save();render()}return}
+    const loc=l.locator||t.locator||'';
+    if(loc)copyTxt(loc,'Localizador '+loc+' copiado');
+    window.open(ciUrl(l),'_blank','noopener');
+    setTimeout(()=>{if(confirm('Marcar check-in de '+l.from+'→'+l.to+' como feito?')){CHECKINS[l.id]=true;save();render()}},900);
+  });
 }
-
-function updateBtn(btn, done, hoursUntil){
-  btn.classList.remove('done','ready','locked');
-  btn.disabled = false;
-  if (done){
-    btn.textContent = '✓ Feito · desfazer';
-    btn.classList.add('done');
-  } else if (hoursUntil <= CHECKIN_WINDOW_HOURS){
-    btn.textContent = 'Fazer check-in';
-    btn.classList.add('ready');
-  } else {
-    btn.textContent = `Libera em ${Math.ceil(hoursUntil - CHECKIN_WINDOW_HOURS)}h`;
-    btn.classList.add('locked');
-    btn.disabled = true;
-  }
-}
-
 function renderCarro(){
-  const container = document.getElementById('tab-carro');
-  const now = new Date();
-  const visible = CARS.filter(c => c.pickupIso && new Date(c.pickupIso) > now);
-  if (visible.length === 0){
-    container.innerHTML = '<div class="card"><div class="empty"><div class="big">SEM LOCAÇÃO</div>Nenhuma locação de carro futura. Envie um voucher para adicionar.</div></div>';
-    return;
-  }
-  container.innerHTML = visible.map(c => `<div class="card"><div class="card-head"><div class="route-name">${c.location || 'Locação'}</div><button class="del" data-del-car="${c.id}">×</button></div>
-    <div class="leg"><div class="flap">${c.confirmation || '—'}</div><div class="mid"><div class="cities">Retirada ${fmtDate(c.pickupIso)} ${fmtTime(c.pickupIso)}</div><div class="meta">Devolução ${c.dropIso ? fmtDate(c.dropIso)+' '+fmtTime(c.dropIso) : '—'}${c.value ? ' · BRL '+c.value : ''}</div></div><div></div></div></div>`).join('');
-  container.querySelectorAll('[data-del-car]').forEach(btn => {
-    btn.addEventListener('click', async () => { CARS = CARS.filter(c => c.id !== btn.dataset.delCar); await saveCars(); renderCarro(); });
-  });
+  const c=F('tab-carro'),v=CARS.filter(x=>x.pickupIso&&fut(x.pickupIso));
+  if(!v.length){c.innerHTML='<div class="card"><div class="empty"><div class="big">SEM LOCAÇÃO</div>Envie um voucher para adicionar.</div></div>';return}
+  c.innerHTML=v.map(x=>`<div class="card"><div class="card-head"><div class="route-name">${x.location||'Locação'}</div><button class="hbtn del" data-dc="${x.id}">×</button></div>
+    <div class="leg"><div class="legtop"><div class="flap">${x.confirmation||'—'}</div><div class="mid"><div class="cities">Retirada ${fDW(x.pickupIso)} ${fT(x.pickupIso)}</div>
+    <div class="meta">Devolução ${x.dropIso?fDW(x.dropIso)+' '+fT(x.dropIso):'—'}${x.value?' · BRL '+x.value:''}</div></div></div>
+    ${x.confirmation?`<div class="legbot"><button class="chip" data-cp2="${x.confirmation}">⧉ Copiar confirmação</button></div>`:''}</div></div>`).join('');
+  c.querySelectorAll('[data-dc]').forEach(b=>b.onclick=()=>{CARS=CARS.filter(x=>x.id!==b.dataset.dc);save();render()});
+  c.querySelectorAll('[data-cp2]').forEach(b=>b.onclick=()=>copyTxt(b.dataset.cp2,'Copiado'));
 }
-
-async function renderHistorico(){
-  const container = document.getElementById('tab-historico');
-  const now = new Date();
-  const pastCars = CARS.filter(c => c.pickupIso && new Date(c.pickupIso) <= now);
-  const tripsWithPast = TRIPS
-    .map(t => ({ ...t, legs: t.legs.filter(l => new Date(l.dt) <= now) }))
-    .filter(t => t.legs.length > 0);
-
-  if (tripsWithPast.length === 0 && pastCars.length === 0){
-    container.innerHTML = '<div class="card"><div class="empty"><div class="big">SEM HISTÓRICO</div>Voos e locações já realizados aparecem aqui automaticamente.</div></div>';
-    return;
+function renderHist(){
+  const c=F('tab-historico');
+  const pc=CARS.filter(x=>x.pickupIso&&!fut(x.pickupIso));
+  const pt=TRIPS.map(t=>({...t,legs:t.legs.filter(l=>!fut(l.dt))})).filter(t=>t.legs.length);
+  if(!pt.length&&!pc.length){c.innerHTML='<div class="card"><div class="empty"><div class="big">SEM HISTÓRICO</div>Voos realizados aparecem aqui sozinhos.</div></div>';return}
+  pt.sort((a,b)=>Math.max(...b.legs.map(l=>parseL(l.dt)))-Math.max(...a.legs.map(l=>parseL(l.dt))));
+  const n=pt.reduce((s,t)=>s+t.legs.length,0);
+  const yr=new Date().getFullYear();
+  const nY=pt.reduce((s,t)=>s+t.legs.filter(l=>parseL(l.dt).getFullYear()===yr).length,0);
+  let h=`<div class="card"><div class="empty" style="padding:16px;font-family:var(--mono)"><b style="color:var(--amber)">${n}</b> trecho(s) · <b style="color:var(--amber)">${pt.length}</b> viagem(ns) · <b style="color:var(--amber)">${nY}</b> em ${yr}</div></div>`;
+  for(const t of pt){
+    h+=`<div class="card"><div class="card-head"><div class="route-name">${t.routeName}</div><div class="os">${t.os||''}</div></div>`;
+    [...t.legs].sort((a,b)=>parseL(b.dt)-parseL(a.dt)).forEach(l=>{
+      const d=!!CHECKINS[l.id];
+      h+=`<div class="leg"><div class="legtop"><div class="flap">${l.flight}</div><div class="mid"><div class="cities">${l.cities}</div>
+        <div class="meta">${fDW(l.dt)} · ${fT(l.dt)} → ${fT(l.at)}${l.seat?' · '+l.seat:''}</div></div>
+        <div class="meta" style="color:${d?'var(--green)':'var(--muted)'};white-space:nowrap">${d?'✓':'ok'}</div></div></div>`;
+    });
+    h+='</div>';
   }
-
-  tripsWithPast.sort((a, b) => {
-    const aLast = Math.max(...a.legs.map(l => new Date(l.dt).getTime()));
-    const bLast = Math.max(...b.legs.map(l => new Date(l.dt).getTime()));
-    return bLast - aLast;
-  });
-
-  let html = '';
-  for (const trip of tripsWithPast){
-    html += `<div class="card"><div class="card-head"><div class="route-name">${trip.routeName}</div><div class="os">${trip.os}</div></div>`;
-    const legsDesc = [...trip.legs].sort((a, b) => new Date(b.dt) - new Date(a.dt));
-    for (const leg of legsDesc){
-      const done = await getCheckin(leg.id);
-      html += `<div class="leg"><div class="flap">${leg.flight}</div><div class="mid"><div class="cities">${leg.cities}</div><div class="meta">${fmtDate(leg.dt)} · ${fmtTime(leg.dt)} → ${fmtTime(leg.at)}</div></div><div class="meta" style="color:${done ? 'var(--green)' : 'var(--muted)'};white-space:nowrap;">${done ? '✓ check-in feito' : 'realizado'}</div></div>`;
-    }
-    html += `</div>`;
-  }
-  if (pastCars.length){
-    html += pastCars.map(c => `<div class="card"><div class="card-head"><div class="route-name">${c.location || 'Locação'}</div></div>
-      <div class="leg"><div class="flap">${c.confirmation || '—'}</div><div class="mid"><div class="cities">Retirada ${fmtDate(c.pickupIso)} ${fmtTime(c.pickupIso)}</div><div class="meta">Devolução ${c.dropIso ? fmtDate(c.dropIso) + ' ' + fmtTime(c.dropIso) : '—'}</div></div><div></div></div></div>`).join('');
-  }
-  container.innerHTML = html;
+  h+=pc.map(x=>`<div class="card"><div class="card-head"><div class="route-name">${x.location||'Locação'}</div></div>
+    <div class="leg"><div class="legtop"><div class="flap">${x.confirmation||'—'}</div><div class="mid"><div class="cities">Retirada ${fDW(x.pickupIso)} ${fT(x.pickupIso)}</div>
+    <div class="meta">Devolução ${x.dropIso?fDW(x.dropIso)+' '+fT(x.dropIso):'—'}</div></div></div></div></div>`).join('');
+  c.innerHTML=h;
 }
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const target = tab.dataset.tab;
-    document.getElementById('tab-voos').style.display = target === 'voos' ? 'block' : 'none';
-    document.getElementById('tab-carro').style.display = target === 'carro' ? 'block' : 'none';
-    document.getElementById('tab-historico').style.display = target === 'historico' ? 'block' : 'none';
-    if (target === 'historico') renderHistorico();
-  });
+function render(anim){renderHero(anim);renderVoos();renderCarro();renderHist();renderBanner()}
+document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  tb.classList.add('active');const k=tb.dataset.tab;
+  F('tab-voos').style.display=k==='voos'?'block':'none';
+  F('tab-carro').style.display=k==='carro'?'block':'none';
+  F('tab-historico').style.display=k==='historico'?'block':'none';
 });
-
-document.getElementById('today-date').textContent =
-  new Date().toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
-
-(async () => {
-  await loadState();
-  renderHero(); renderVoos(); renderCarro();
-})();
+F('today-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+load();render(true);
+setInterval(()=>renderHero(false),30000);
+setInterval(()=>renderVoos(),300000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render(false)});
 </script>
 </body>
 </html>
