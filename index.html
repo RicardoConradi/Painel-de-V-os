@@ -28,7 +28,7 @@ header .date{font-family:var(--mono);font-size:12px;color:var(--muted);text-alig
 .hero::before{content:"";position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:radial-gradient(circle,var(--amber-soft),transparent 70%)}
 .hero .eyebrow{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase}
 .hero .countdown{font-family:var(--mono);font-size:34px;font-weight:700;margin:6px 0 2px}
-.hero .route{font-size:14px;color:var(--muted);line-height:1.5}
+.hero .route{font-size:14px;color:var(--muted);line-height:1.55}
 .hero .route b{color:var(--text);font-weight:600}
 .banner{background:var(--rust-soft);border:1px solid var(--rust);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .banner button{background:none;border:1px solid var(--rust);color:var(--rust);border-radius:6px;font-family:var(--mono);font-size:11px;padding:7px 10px;cursor:pointer;white-space:nowrap}
@@ -54,6 +54,7 @@ header .date{font-family:var(--mono);font-size:12px;color:var(--muted);text-alig
 .hbtn{background:none;border:1px solid var(--line);border-radius:6px;color:var(--muted);font-family:var(--mono);font-size:12px;padding:6px 8px;cursor:pointer}
 .hbtn.del{border:none;font-size:17px;padding:3px 5px}
 .hbtn.del:active{color:var(--rust)}
+.alert{background:var(--rust-soft);border-top:1px solid var(--rust);color:var(--rust);font-family:var(--mono);font-size:11px;padding:9px 16px;line-height:1.5}
 .leg{padding:12px 16px;border-top:1px solid var(--line)}
 .legtop{display:flex;align-items:center;gap:12px}
 .flap{font-family:var(--mono);background:#0d1013;border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-size:13px;color:var(--amber);white-space:nowrap;text-decoration:none;flex-shrink:0}
@@ -148,13 +149,13 @@ body.modal-open{overflow:hidden}
 <div class="overlay" id="overlay-manual"><div class="modal">
   <h3 id="manual-title">Adicionar voo</h3><div class="sub">Preencha os dados do trecho</div>
   <div class="grid2">
-    <div class="fld"><label>Origem (ex: JOI)</label><input id="m-from" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
-    <div class="fld"><label>Destino (ex: GRU)</label><input id="m-to" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
+    <div class="fld"><label>Origem (ex: CWB)</label><input id="m-from" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
+    <div class="fld"><label>Destino (ex: REC)</label><input id="m-to" maxlength="4" class="up" autocapitalize="characters" autocomplete="off"></div>
   </div>
   <div class="fld"><label>Cidades (preenche sozinho)</label><input id="m-cities" class="sans"></div>
   <div class="grid2">
     <div class="fld"><label>Companhia</label><select id="m-airline"><option value="">—</option><option value="GOL">GOL</option><option value="LATAM">LATAM</option><option value="Azul">Azul</option><option value="Outra">Outra</option></select></div>
-    <div class="fld"><label>Nº do voo (ex: 1882)</label><input id="m-num" inputmode="numeric" autocomplete="off"></div>
+    <div class="fld"><label>Nº do voo (ex: 3293)</label><input id="m-num" inputmode="numeric" autocomplete="off"></div>
   </div>
   <div class="grid2">
     <div class="fld"><label>Data</label><input type="date" id="m-date"></div>
@@ -188,21 +189,21 @@ body.modal-open{overflow:hidden}
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-const CI_WINDOW=48, LIVE_WINDOW=6, BOARD_MIN=40, BACKUP_DAYS=30;
+const CI_WINDOW=48, LIVE_WINDOW=6, BOARD_MIN=40, BACKUP_DAYS=30, TIGHT_MIN=90;
 const MONTHS={jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
 const LS='painel-voos:';
 let TRIPS=[],CARS=[],CHECKINS={};
 const F=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 
-/* ---- storage: grava sozinho, sempre ---- */
+/* ---- storage: grava sozinho ---- */
 function lsGet(k){try{return localStorage.getItem(LS+k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(LS+k,v);return true}catch(e){console.error(e);return false}}
 function save(){
   const ok=lsSet('trips',JSON.stringify(TRIPS))&&lsSet('cars',JSON.stringify(CARS))&&lsSet('checkins',JSON.stringify(CHECKINS));
-  if(!ok) toast('⚠ Não consegui salvar — faça um backup agora');
+  if(!ok)toast('⚠ Não consegui salvar — faça backup agora');
 }
-function toast(msg){const t=F('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
+function toast(m){const t=F('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400)}
 
 /* ---- tempo local puro ---- */
 function toStr(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
@@ -213,7 +214,6 @@ function parseL(s){
   return m?new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5]):new Date(s);
 }
 const norm=s=>{const d=parseL(s);return d&&!isNaN(d)?toStr(d):s};
-const fD=s=>{const d=parseL(s);return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`};
 const fT=s=>{const d=parseL(s);return `${pad(d.getHours())}:${pad(d.getMinutes())}`};
 const fut=s=>parseL(s)>new Date();
 const hrsTo=s=>(parseL(s)-new Date())/3600000;
@@ -232,10 +232,10 @@ function load(){
 
 /* ---- companhias ---- */
 const AIR={
-  GOL:{ci:'https://b2c.voegol.com.br/checkin',fa:'GLO',code:'G3',app:'GOL'},
-  LATAM:{ci:'https://www.latamairlines.com/br/pt/checkin',fa:'TAM',code:'LA',app:'LATAM'},
-  Azul:{ci:'https://www.voeazul.com.br/br/pt/home/checkin',fa:'AZU',code:'AD',app:'Azul'},
-  Avianca:{ci:'https://www.avianca.com',fa:'AVA',code:'AV',app:'Avianca'}
+  GOL:{ci:'https://b2c.voegol.com.br/checkin',fa:'GLO'},
+  LATAM:{ci:'https://www.latamairlines.com/br/pt/checkin',fa:'TAM'},
+  Azul:{ci:'https://www.voeazul.com.br/br/pt/home/checkin',fa:'AZU'},
+  Avianca:{ci:'https://www.avianca.com',fa:'AVA'}
 };
 function airOf(l){
   if(l.airline&&AIR[l.airline])return l.airline;
@@ -250,8 +250,8 @@ const flightNum=l=>((l.flight||'').match(/(\d{2,5})/)||[,''])[1];
 function ciUrl(l){const a=airOf(l);return a?AIR[a].ci:'https://www.google.com/search?q='+encodeURIComponent('check-in '+(l.flight||''))}
 function liveUrl(l){
   const a=airOf(l),n=flightNum(l);
-  if(a&&n)return 'https://pt.flightaware.com/live/flight/'+AIR[a].fa+n;
-  return 'https://www.google.com/search?q='+encodeURIComponent('status voo '+(l.flight||'')+' '+fD(l.dt));
+  return (a&&n)?'https://pt.flightaware.com/live/flight/'+AIR[a].fa+n
+    :'https://www.google.com/search?q='+encodeURIComponent('status voo '+(l.flight||''));
 }
 function boardTime(l){const d=parseL(l.dt);d.setMinutes(d.getMinutes()-BOARD_MIN);return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
 
@@ -264,7 +264,7 @@ function buildIcs(trips){
   const o=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Painel de Embarque//PT-BR','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Voos'];
   trips.forEach(t=>t.legs.forEach(l=>{
     const loc=l.locator||t.locator||'';
-    const desc=['Voo: '+(l.flight||''),loc?'Localizador: '+loc:'',l.seat?'Assento: '+l.seat:'',t.os||'','Embarque previsto: '+boardTime(l),'Check-in: '+ciUrl(l),'Status ao vivo: '+liveUrl(l)].filter(Boolean).join('\n');
+    const desc=['Voo: '+(l.flight||''),loc?'Localizador: '+loc:'',l.term?'Terminal: '+l.term:'',l.seat?'Assento: '+l.seat:'',t.os||'','Embarque previsto: '+boardTime(l),'Check-in: '+ciUrl(l),'Status: '+liveUrl(l)].filter(Boolean).join('\n');
     o.push('BEGIN:VEVENT','UID:'+String(l.id||'x').replace(/[^A-Za-z0-9]/g,'')+'@painel-embarque','DTSTAMP:'+st,
       'DTSTART:'+icsS(l.dt),'DTEND:'+icsS(l.at),
       'SUMMARY:'+icsE('✈ '+l.from+'→'+l.to+' · '+(l.flight||'')),
@@ -317,31 +317,68 @@ function normAir(raw,code){
   if(r.includes('AVIANCA'))return 'Avianca';
   return ({AD:'Azul',G3:'GOL',LA:'LATAM',JJ:'LATAM',O6:'Avianca',AV:'Avianca'})[code]||(raw||'').trim()||code;
 }
+
+/* parser em blocos: tolera quebra de linha, coluna vazia e várias reservas */
 function parseFlight(text){
-  const os=text.match(/O\.S\.\s*(\d+)/);
-  const rt=text.match(/\n([A-ZÀ-Ú][A-ZÀ-Ú\s\-]{4,60})\s+LOCALIZADOR:\s*([A-Z0-9]+)/);
-  const lc=text.match(/LOCALIZADOR:\s*([A-Z0-9]{5,8})/);
-  const em=text.match(/Data Emiss(?:ã|a)o:\s*(\d{1,2})\/([a-zçA-Z]{3})\/(\d{4})/i);
-  let base=new Date();
-  if(em)base=new Date(+em[3],MONTHS[em[2].toLowerCase()],+em[1]);
-  const rx=/([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})\s+([A-Za-zÀ-úÇç\s]+?)\s+Escalas\s+\d+\s+([A-Za-zÀ-úÇç0-9\.\-\s]+?)\s*\(([A-Z]{3})\)\s*(\d{1,2})\/([a-zçA-Z]{3})\s+(\d{2}:\d{2})/g;
-  const legs=[];let m;
-  while((m=rx.exec(text))!==null){
-    const[,cia,voo,,oC,oCode,dD,dM,dT,aRaw,tC,tCode,aD,aM,aT]=m;
-    const dMi=MONTHS[dM.toLowerCase()],aMi=MONTHS[aM.toLowerCase()];
-    if(dMi===undefined||aMi===undefined)continue;
-    let y=base.getFullYear();
-    if(dMi<base.getMonth()-6)y+=1;
-    const[dh,dmn]=dT.split(':').map(Number),[ah,amn]=aT.split(':').map(Number);
-    const dep=new Date(y,dMi,+dD,dh,dmn),arr=new Date(y,aMi,+aD,ah,amn);
-    const air=normAir(aRaw,cia);
-    legs.push({id:oCode+tCode+voo+toStr(dep),dt:toStr(dep),at:toStr(arr),from:oCode,to:tCode,
-      flight:air+' '+voo,airline:AIR[air]?air:null,locator:lc?lc[1]:'',
-      cities:oC.trim()+' → '+tC.trim(),gate:'',term:'',seat:'',note:''});
-  }
-  return {type:'flight',routeName:rt?rt[1].trim():'Viagem',os:os?'O.S. '+os[1]:'',
-    locator:lc?lc[1]:'',legs,est:(text.match(/\b[A-Z]{2}\s?\d{3,5}\s+[A-Z]\b/g)||[]).length};
+  const T=String(text).replace(/\r/g,'');
+  const osm=T.match(/O\.S\.\s*(\d+)/);
+  const em=T.match(/Data Emiss(?:ã|a)o:\s*(\d{1,2})\/([a-zçA-Z]{3})\/(\d{4})/i);
+  const baseY=em?+em[3]:new Date().getFullYear();
+  const baseM=em?MONTHS[em[2].toLowerCase()]:new Date().getMonth();
+
+  const heads=[];
+  const hrx=/([A-ZÀ-Ú][A-ZÀ-Ú\s\.\-]{2,45}?)\s+LOCALIZADOR:\s*([A-Z0-9]{5,8})/g;
+  let hm;
+  while((hm=hrx.exec(T))!==null)heads.push({i:hm.index,name:hm[1].trim().replace(/\s+/g,' '),loc:hm[2]});
+
+  const arx=/\b([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])(?=\s)/g;
+  const anc=[];let am;
+  while((am=arx.exec(T))!==null)anc.push({i:am.index,cia:am[1],num:am[2]});
+
+  const legs=[],seen=new Set();
+  anc.forEach((a,k)=>{
+    const blk=T.slice(a.i,anc[k+1]?anc[k+1].i:T.length);
+    const prx=/\(([A-Z]{3})\)[\s\S]{0,60}?(\d{1,2})\/([a-zà-úA-ZÀ-Ú]{3})\s+(\d{1,2}:\d{2})/g;
+    const pts=[];let pm;
+    while((pm=prx.exec(blk))!==null){
+      const mi=MONTHS[pm[3].toLowerCase()];
+      if(mi===undefined)continue;
+      pts.push({code:pm[1],d:+pm[2],mi,t:pm[4],at:pm.index});
+      if(pts.length===2)break;
+    }
+    if(pts.length<2)return;
+    const yOf=mi=>(mi<baseM-6)?baseY+1:baseY;
+    const mk=p=>{const[h,n]=p.t.split(':').map(Number);return new Date(yOf(p.mi),p.mi,p.d,h,n)};
+    const dep=mk(pts[0]),arr=mk(pts[1]);
+    if(isNaN(dep)||isNaN(arr))return;
+    const nameB=upto=>{
+      const s=blk.slice(0,upto).replace(/\s+/g,' ');
+      const m=s.match(/([A-Za-zÀ-ÿ0-9\.\-\/ ]{3,60})$/);
+      let n=m?m[1].trim():'';
+      n=n.replace(/^(?:[A-Z0-9]{2}\s+\d{3,5}\s+[A-Z]\s+)/,'')
+         .replace(/^(?:LATAM AIRLINES GROUP|LATAM|Azul|GOL|Avianca)\s*/gi,'')
+         .replace(/\s*Escalas\s*\d+\s*/gi,'').trim();
+      return n||'—';
+    };
+    const air=normAir(blk.slice(0,300),a.cia);
+    const hd=heads.filter(h=>h.i<a.i).pop();
+    const tm=(blk.match(/Term\.\s*Embarque:\s*([A-Z0-9]{1,4})/i)||[])[1]||'';
+    const st=(blk.match(/Assento:?\s*([0-9]{1,2}[A-K])\b/i)||[])[1]||'';
+    const id=pts[0].code+pts[1].code+a.num+toStr(dep);
+    if(seen.has(id))return;
+    seen.add(id);
+    legs.push({id,dt:toStr(dep),at:toStr(arr),from:pts[0].code,to:pts[1].code,
+      flight:air+' '+a.num,airline:AIR[air]?air:null,locator:hd?hd.loc:'',
+      cities:nameB(pts[0].at)+' → '+nameB(pts[1].at),
+      term:tm.toUpperCase(),gate:'',seat:st.toUpperCase(),note:''});
+  });
+  legs.sort((x,y)=>parseL(x.dt)-parseL(y.dt));
+  const names=[...new Set(heads.map(h=>h.name))];
+  return {type:'flight',routeName:names.length?names[0]:'Viagem',
+    os:osm?'O.S. '+osm[1]:'',locator:heads.length===1?heads[0].loc:'',
+    legs,est:anc.length};
 }
+
 function parseCar(text){
   const cf=text.match(/CONFIRMATION LOC[\s\S]{0,40}?\n\s*([A-Z0-9]{8,12})/)||text.match(/N[uú]mero de confirma[cç][aã]o[\s\S]{0,20}?\n?\s*([A-Z0-9]{8,12})/i);
   const pD=text.match(/Data de retirada\s*\n?\s*(\d{2})\/(\d{2})\/(\d{4})/i),pT=text.match(/Hor[aá]rio de retirada\s*\n?\s*(\d{2}:\d{2})/i);
@@ -356,7 +393,7 @@ function detect(t){
   return{type:'unknown'};
 }
 
-/* ---- upload / review ---- */
+/* ---- review ---- */
 const ov=F('overlay'),mB=F('modal-body'),mT=F('modal-title'),mS=F('modal-sub'),cBtn=F('modal-confirm');
 async function handleFiles(files){
   const lb=F('dz-label');lb.textContent='Lendo PDF…';
@@ -375,11 +412,10 @@ function review(p,raw,fn){
     const dup=p.legs.filter(l=>fut(l.dt)&&known.has(l.id)).length;
     const pst=p.legs.filter(l=>!fut(l.dt)).length;
     mT.textContent='Voo detectado — '+p.routeName;
-    mS.textContent=[p.os,pst?pst+' passado(s) ignorado(s)':'',dup?dup+' já no painel':''].filter(Boolean).join(' · ');
-    const w=p.est>p.legs.length?'<div class="review-row"><div class="rtxt"><b style="color:var(--rust)">⚠ Li '+p.legs.length+' de ~'+p.est+' trecho(s).</b><div class="warn">Complete o resto em "Digitar voo".</div></div></div>':'';
-    if(!nw.length){mB.innerHTML=w+'<div class="review-row"><div class="rtxt"><b>Nenhum trecho novo e futuro.</b></div></div>'+rawFB(raw);cBtn.style.display='none'}
+    mS.textContent=[p.os,p.legs.length+' trecho(s) lido(s)',pst?pst+' passado(s)':'',dup?dup+' já no painel':''].filter(Boolean).join(' · ');
+    if(!nw.length){mB.innerHTML='<div class="review-row"><div class="rtxt"><b>Nenhum trecho novo e futuro.</b><div class="warn">Se esperava trechos novos, apague a viagem antiga e tente de novo.</div></div></div>'+rawFB(raw);cBtn.style.display='none'}
     else{cBtn.style.display='block';
-      mB.innerHTML=w+nw.map((l,i)=>'<div class="review-row"><input type="checkbox" checked data-i="'+i+'"><div class="rtxt"><b>'+l.cities+'</b><div class="meta">'+fDW(l.dt)+' · '+fT(l.dt)+' → '+fT(l.at)+' · '+l.flight+(l.locator?' · '+l.locator:'')+'</div></div></div>').join('')+rawFB(raw)}
+      mB.innerHTML=nw.map((l,i)=>'<div class="review-row"><input type="checkbox" checked data-i="'+i+'"><div class="rtxt"><b>'+l.from+' → '+l.to+'</b><div class="meta">'+fDW(l.dt)+' · '+fT(l.dt)+' → '+fT(l.at)+'</div><div class="meta">'+l.flight+(l.locator?' · '+l.locator:'')+(l.term?' · Term. '+l.term:'')+'</div><div class="meta" style="opacity:.7">'+l.cities+'</div></div></div>').join('')+rawFB(raw)}
     cBtn.onclick=()=>{
       const ch=[...mB.querySelectorAll('input:checked')].map(c=>nw[+c.dataset.i]);
       if(ch.length){TRIPS.push({id:'trip-'+Date.now(),routeName:p.routeName,os:p.os,locator:p.locator,legs:ch});save();render();toast(ch.length+' trecho(s) adicionado(s)')}
@@ -393,7 +429,7 @@ function review(p,raw,fn){
     cBtn.onclick=()=>{const c=F('cc');if(c&&c.checked){CARS.push({id:'car-'+Date.now(),...p});save();render();toast('Locação adicionada')}closeRev()};
   }else{
     mT.textContent='Formato não reconhecido';mS.textContent=fn;
-    mB.innerHTML='<div class="review-row"><div class="rtxt"><b>Não é roteiro nem voucher conhecido.</b><div class="warn">Use "Digitar voo" — leva 30s.</div></div></div>'+rawFB(raw,true);
+    mB.innerHTML='<div class="review-row"><div class="rtxt"><b>Não é roteiro nem voucher conhecido.</b><div class="warn">Use "Digitar voo".</div></div></div>'+rawFB(raw,true);
     cBtn.style.display='none';
   }
   ov.classList.add('open');lock();
@@ -451,7 +487,7 @@ F('manual-submit').onclick=()=>{
       const t=TRIPS.find(x=>x.id===st.tid);if(!t)return alert('Viagem não encontrada.');
       const i=t.legs.findIndex(x=>x.id===st.lid);
       leg.note=t.legs[i].note||'';leg.id=st.lid;t.legs[i]=leg;
-      if(label)t.routeName=label;if(leg.locator)t.locator=leg.locator;
+      if(label)t.routeName=label;
     }else if(st.mode==='addToTrip'){
       const t=TRIPS.find(x=>x.id===st.tid);if(!t)return alert('Viagem não encontrada.');
       t.legs.push(leg);t.legs.sort((a,b)=>parseL(a.dt)-parseL(b.dt));
@@ -459,11 +495,11 @@ F('manual-submit').onclick=()=>{
     save();render();ovM.classList.remove('open');unlock();resetF();toast('Salvo');
   }catch(e){console.error(e);alert('Não consegui salvar: '+e.message)}
 };
-const IATA={JOI:'Joinville',NVT:'Navegantes',GRU:'Guarulhos',CGH:'Congonhas',GIG:'Galeão',SDU:'Santos Dumont',VIX:'Vitória',CWB:'Curitiba',POA:'Porto Alegre',BSB:'Brasília',CNF:'Confins',PLU:'Pampulha',SSA:'Salvador',REC:'Recife',FOR:'Fortaleza',VCP:'Viracopos',FLN:'Florianópolis',MAO:'Manaus',BEL:'Belém',NAT:'Natal',GYN:'Goiânia',CGB:'Cuiabá',SLZ:'São Luís',AJU:'Aracaju',MCZ:'Maceió',THE:'Teresina',JPA:'João Pessoa',PMW:'Palmas',CGR:'Campo Grande',IGU:'Foz do Iguaçu',LDB:'Londrina',UDI:'Uberlândia',RAO:'Ribeirão Preto',XAP:'Chapecó',CXJ:'Caxias do Sul',PVH:'Porto Velho',RBR:'Rio Branco',BVB:'Boa Vista',MCP:'Macapá',JJD:'Jericoacoara',IOS:'Ilhéus',PET:'Pelotas',NVR:'Novo Progresso',MGF:'Maringá',CAC:'Cascavel',JCB:'Joaçaba',SJP:'S.J. Rio Preto',BPS:'Porto Seguro',VDC:'Vitória Conquista',MOC:'Montes Claros',IPN:'Ipatinga',JDO:'Juazeiro do Norte',PNZ:'Petrolina',STM:'Santarém',SJK:'S.J. Campos',NVG:'Navegantes'};
+const IATA={JOI:'Joinville',NVT:'Navegantes',GRU:'Guarulhos',CGH:'Congonhas',GIG:'Galeão',SDU:'Santos Dumont',VIX:'Vitória',CWB:'Curitiba',POA:'Porto Alegre',BSB:'Brasília',CNF:'Confins',PLU:'Pampulha',SSA:'Salvador',REC:'Recife',FOR:'Fortaleza',VCP:'Viracopos',FLN:'Florianópolis',MAO:'Manaus',BEL:'Belém',NAT:'Natal',GYN:'Goiânia',CGB:'Cuiabá',SLZ:'São Luís',AJU:'Aracaju',MCZ:'Maceió',THE:'Teresina',JPA:'João Pessoa',PMW:'Palmas',CGR:'Campo Grande',IGU:'Foz do Iguaçu',LDB:'Londrina',UDI:'Uberlândia',RAO:'Ribeirão Preto',XAP:'Chapecó',CXJ:'Caxias do Sul',PVH:'Porto Velho',RBR:'Rio Branco',BVB:'Boa Vista',MCP:'Macapá',IOS:'Ilhéus',PET:'Pelotas',MGF:'Maringá',CAC:'Cascavel',SJP:'S.J. Rio Preto',BPS:'Porto Seguro',VDC:'Vitória Conquista',MOC:'Montes Claros',IPN:'Ipatinga',JDO:'Juazeiro do Norte',PNZ:'Petrolina',STM:'Santarém',SJK:'S.J. Campos'};
 function autoCity(){const a=IATA[F('m-from').value.toUpperCase().trim()],b=IATA[F('m-to').value.toUpperCase().trim()];if(a&&b&&!F('m-cities').value.trim())F('m-cities').value=a+' → '+b}
 F('m-from').onblur=autoCity;F('m-to').onblur=autoCity;
 
-/* ---- portão / aeroporto ---- */
+/* ---- portão ---- */
 const ovG=F('overlay-gate');let gCtx=null;
 function openGate(tid,lid){
   const t=TRIPS.find(x=>x.id===tid),l=t&&t.legs.find(x=>x.id===lid);
@@ -515,6 +551,21 @@ fi.onchange=e=>{if(e.target.files.length)handleFiles(e.target.files);fi.value=''
 ['dragleave','drop'].forEach(v=>dz.addEventListener(v,e=>{e.preventDefault();dz.classList.remove('drag')}));
 dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files)});
 
+/* ---- alertas de conexão ---- */
+function tripAlerts(trip){
+  const out=[],L=[...trip.legs].filter(l=>fut(l.dt)).sort((a,b)=>parseL(a.dt)-parseL(b.dt));
+  for(let i=0;i<L.length-1;i++){
+    const a=L[i],b=L[i+1];
+    if(a.to!==b.from)continue;
+    const gap=(parseL(b.dt)-parseL(a.at))/60000;
+    if(gap<0)continue;
+    const dif=(a.locator||trip.locator||'')!==(b.locator||trip.locator||'');
+    if(gap<TIGHT_MIN)out.push(`⚠ Conexão apertada em ${a.to}: ${Math.round(gap)} min entre ${a.flight} e ${b.flight}.${dif?' Reservas separadas — atraso não garante reacomodação.':''}`);
+    else if(dif)out.push(`⚠ ${a.to}: ${a.flight} e ${b.flight} são reservas diferentes (${a.locator||'—'} / ${b.locator||'—'}). Cada companhia responde só pelo próprio trecho.`);
+  }
+  return out;
+}
+
 /* ---- render ---- */
 let flap=null;
 function splitFlap(el,txt){
@@ -526,20 +577,17 @@ function splitFlap(el,txt){
     el.textContent=o;f++;
   },35);
 }
-function nextLeg(){
+function renderHero(anim){
   const n=new Date();let L=null,T=null;
   TRIPS.forEach(t=>t.legs.forEach(l=>{const d=parseL(l.dt);if(d>n&&(!L||d<parseL(L.dt))){L=l;T=t}}));
-  return{L,T};
-}
-function renderHero(anim){
-  const{L,T}=nextLeg(),h=F('hero');
+  const h=F('hero');
   if(!L){h.innerHTML='<div class="eyebrow">Sem viagens futuras</div><div class="countdown">—</div><div class="route">Adicione um voo para começar.</div>';return}
-  const ms=parseL(L.dt)-new Date();
+  const ms=parseL(L.dt)-n;
   const d=Math.floor(ms/86400000),hh=Math.floor(ms%86400000/3600000),mi=Math.floor(ms%3600000/60000);
   const txt=d>0?`${d}D ${hh}H ${mi}M`:(hh>0?`${hh}H ${mi}M`:`${mi}M`);
   const hrs=ms/3600000,ci=!!CHECKINS[L.id];
   const tag=ci?'<span style="color:var(--green)">✓ check-in feito</span>':(hrs<=CI_WINDOW?'<span style="color:var(--amber)">⚠ check-in liberado</span>':'');
-  const g=(hrs<=LIVE_WINDOW)?`<br><b style="color:var(--amber)">Embarque ${boardTime(L)}</b>${L.gate?' · Portão <b style="color:var(--amber)">'+L.gate+'</b>':''}${L.term?' · Term. '+L.term:''}${L.seat?' · Assento '+L.seat:''}`:'';
+  const g=(hrs<=LIVE_WINDOW)?`<br><b style="color:var(--amber)">Embarque ${boardTime(L)}</b>${L.gate?' · Portão <b style="color:var(--amber)">'+L.gate+'</b>':''}${L.term?' · Term. '+L.term:''}${L.seat?' · Assento '+L.seat:''}`:(L.term?`<br>Terminal ${L.term}`:'');
   h.innerHTML=`<div class="eyebrow">Próximo embarque</div><div class="countdown" id="hc">${anim?'':txt}</div>
     <div class="route">${T.routeName} · <b>${fDW(L.dt)}</b> às <b>${fT(L.dt)}</b> (${L.from} → ${L.to})${tag?' · '+tag:''}${g}</div>`;
   if(anim)splitFlap(F('hc'),txt);
@@ -553,17 +601,14 @@ function renderVoos(){
   const c=F('tab-voos');
   const vis=TRIPS.filter(t=>t.legs.some(l=>fut(l.dt)));
   if(!vis.length){c.innerHTML='<div class="card"><div class="empty"><div class="big">NADA PROGRAMADO</div>Envie um PDF ou toque em "Digitar voo".</div></div>';return}
-  vis.sort((a,b)=>{
-    const fa=Math.min(...a.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt)));
-    const fb=Math.min(...b.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt)));
-    return fa-fb;
-  });
+  vis.sort((a,b)=>Math.min(...a.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt)))-Math.min(...b.legs.filter(l=>fut(l.dt)).map(l=>parseL(l.dt))));
   let h='';
   for(const t of vis){
-    const legs=t.legs.filter(l=>fut(l.dt));
+    const legs=t.legs.filter(l=>fut(l.dt)).sort((a,b)=>parseL(a.dt)-parseL(b.dt));
     const live=legs.some(l=>hrsTo(l.dt)<=LIVE_WINDOW);
     h+=`<div class="card${live?' live':''}"><div class="card-head"><div>${live?'<div class="livetag">● Em andamento</div>':''}<div class="route-name">${t.routeName}</div>${t.locator?`<div class="os">Loc. ${t.locator}</div>`:''}</div>
       <div style="display:flex;align-items:center;gap:6px"><div class="os">${t.os||''}</div><button class="hbtn" data-ics="${t.id}" title="Calendário">📅</button><button class="hbtn del" data-del="${t.id}">×</button></div></div>`;
+    tripAlerts(t).forEach(a=>h+=`<div class="alert">${a}</div>`);
     for(const l of legs){
       const hrs=hrsTo(l.dt),done=!!CHECKINS[l.id],lv=hrs<=LIVE_WINDOW;
       let ci;
@@ -574,8 +619,9 @@ function renderVoos(){
       h+=`<div class="leg">
         <div class="legtop">
           <div class="flap">${l.flight}</div>
-          <div class="mid"><div class="cities">${l.cities}</div>
-            <div class="meta">${fDW(l.dt)} · ${fT(l.dt)} → ${fT(l.at)}${loc?` · <span class="loc">${loc}</span>`:''}</div></div>
+          <div class="mid"><div class="cities">${l.from} → ${l.to}</div>
+            <div class="meta">${fDW(l.dt)} · ${fT(l.dt)} → ${fT(l.at)}${l.term?' · T'+l.term:''}${loc?` · <span class="loc">${loc}</span>`:''}</div>
+            <div class="meta" style="opacity:.65">${l.cities}</div></div>
           <button class="hbtn" data-ed="${l.id}" data-t="${t.id}" title="Editar">✎</button>
         </div>
         ${lv?`<div class="gateboard">
@@ -626,15 +672,14 @@ function renderHist(){
   const pt=TRIPS.map(t=>({...t,legs:t.legs.filter(l=>!fut(l.dt))})).filter(t=>t.legs.length);
   if(!pt.length&&!pc.length){c.innerHTML='<div class="card"><div class="empty"><div class="big">SEM HISTÓRICO</div>Voos realizados aparecem aqui sozinhos.</div></div>';return}
   pt.sort((a,b)=>Math.max(...b.legs.map(l=>parseL(l.dt)))-Math.max(...a.legs.map(l=>parseL(l.dt))));
-  const n=pt.reduce((s,t)=>s+t.legs.length,0);
-  const yr=new Date().getFullYear();
+  const n=pt.reduce((s,t)=>s+t.legs.length,0),yr=new Date().getFullYear();
   const nY=pt.reduce((s,t)=>s+t.legs.filter(l=>parseL(l.dt).getFullYear()===yr).length,0);
   let h=`<div class="card"><div class="empty" style="padding:16px;font-family:var(--mono)"><b style="color:var(--amber)">${n}</b> trecho(s) · <b style="color:var(--amber)">${pt.length}</b> viagem(ns) · <b style="color:var(--amber)">${nY}</b> em ${yr}</div></div>`;
   for(const t of pt){
     h+=`<div class="card"><div class="card-head"><div class="route-name">${t.routeName}</div><div class="os">${t.os||''}</div></div>`;
     [...t.legs].sort((a,b)=>parseL(b.dt)-parseL(a.dt)).forEach(l=>{
       const d=!!CHECKINS[l.id];
-      h+=`<div class="leg"><div class="legtop"><div class="flap">${l.flight}</div><div class="mid"><div class="cities">${l.cities}</div>
+      h+=`<div class="leg"><div class="legtop"><div class="flap">${l.flight}</div><div class="mid"><div class="cities">${l.from} → ${l.to}</div>
         <div class="meta">${fDW(l.dt)} · ${fT(l.dt)} → ${fT(l.at)}${l.seat?' · '+l.seat:''}</div></div>
         <div class="meta" style="color:${d?'var(--green)':'var(--muted)'};white-space:nowrap">${d?'✓':'ok'}</div></div></div>`;
     });
