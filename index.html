@@ -4,14 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>Painel de Embarque</title>
-<meta name="theme-color" content="#12151a">
+<meta name="theme-color" content="#003da5">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Embarque">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2312151a'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23f5a623' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%2312151a'/%3E%3Ctext x='90' y='122' font-size='104' text-anchor='middle' fill='%23f5a623' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
-<link rel="manifest" href='data:application/manifest+json,{"name":"Painel de Embarque","short_name":"Embarque","display":"standalone","orientation":"portrait","background_color":"%2312151a","theme_color":"%2312151a","start_url":"./"}'>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23003da5'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23ffffff' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23003da5'/%3E%3Ctext x='90' y='122' font-size='104' text-anchor='middle' fill='%23ffffff' font-family='monospace'%3E%E2%9C%88%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Painel de Embarque","short_name":"Embarque","display":"standalone","orientation":"portrait","background_color":"%23f2f5f9","theme_color":"%23003da5","start_url":"./"}'>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -26,9 +25,9 @@ header .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
 header .date{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right}
 .hero{background:linear-gradient(135deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:22px 20px;margin-bottom:14px;position:relative;overflow:hidden}
 .hero::before{content:"";position:absolute;top:-40%;right:-10%;width:220px;height:220px;background:radial-gradient(circle,var(--amber-soft),transparent 70%)}
-.hero .eyebrow{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase}
-.hero .countdown{font-family:var(--mono);font-size:34px;font-weight:700;margin:6px 0 2px}
-.hero .route{font-size:14px;color:var(--muted);line-height:1.55}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;position:relative}
+.hero .countdown{font-family:var(--mono);font-size:34px;font-weight:700;margin:6px 0 2px;position:relative}
+.hero .route{font-size:14px;color:var(--muted);line-height:1.55;position:relative}
 .hero .route b{color:var(--text);font-weight:600}
 .banner{background:var(--rust-soft);border:1px solid var(--rust);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .banner button{background:none;border:1px solid var(--rust);color:var(--rust);border-radius:6px;font-family:var(--mono);font-size:11px;padding:7px 10px;cursor:pointer;white-space:nowrap}
@@ -107,6 +106,31 @@ body.modal-open{overflow:hidden}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(26px + env(safe-area-inset-bottom));background:var(--panel-2);border:1px solid var(--amber-dim);color:var(--amber);font-family:var(--mono);font-size:12px;padding:11px 16px;border-radius:10px;z-index:99;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90%;text-align:center}
 .toast.show{opacity:1}
 @media(prefers-reduced-motion:reduce){.chip.ready{animation:none}}
+
+/* ===== TEMA CLARO (estilo Azul) — apague este bloco para voltar ao dark ===== */
+:root{
+  --bg:#f2f5f9; --panel:#ffffff; --panel-2:#eef2f7; --line:#d8e0ea;
+  --amber:#0072ce; --amber-soft:rgba(0,114,206,.10); --amber-dim:#5a8cba;
+  --text:#16202b; --muted:#66788c;
+  --green:#1e8e5a; --green-soft:rgba(30,142,90,.12);
+  --rust:#c62828; --rust-soft:rgba(198,40,40,.09);
+}
+body{background:linear-gradient(180deg,#e8eff7 0%,var(--bg) 220px)}
+.card,.hero,.dropzone,.modal{box-shadow:0 1px 3px rgba(20,40,70,.07)}
+.hero{background:linear-gradient(135deg,#003da5,#0072ce);border-color:#003da5}
+.hero .eyebrow{color:rgba(255,255,255,.75)}
+.hero .countdown{color:#fff}
+.hero .route{color:rgba(255,255,255,.88)}
+.hero .route b{color:#fff}
+.hero::before{background:radial-gradient(circle,rgba(255,255,255,.16),transparent 70%)}
+.flap,.gcell,.fld input,.fld select,.raw-fallback textarea{background:#f7fafd!important;color:var(--text)}
+.flap{color:#0072ce;border-color:#cddbe9;font-weight:600}
+.gcell .gv{color:#003da5}
+.gcell .gv.off{color:#c3cfdd}
+.chip.fill,.btn.primary{color:#fff!important}
+.card.live{box-shadow:0 0 0 2px rgba(0,114,206,.18),0 4px 18px rgba(0,61,165,.10)}
+header .title{color:#003da5}
+.overlay{background:rgba(22,40,64,.45)}
 </style>
 </head>
 <body>
@@ -196,7 +220,9 @@ let TRIPS=[],CARS=[],CHECKINS={};
 const F=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 
-/* ---- storage: grava sozinho ---- */
+const IATA={JOI:'Joinville',NVT:'Navegantes',GRU:'Guarulhos',CGH:'Congonhas',GIG:'Galeão',SDU:'Santos Dumont',VIX:'Vitória',CWB:'Curitiba',POA:'Porto Alegre',BSB:'Brasília',CNF:'Confins',PLU:'Pampulha',SSA:'Salvador',REC:'Recife',FOR:'Fortaleza',VCP:'Viracopos',FLN:'Florianópolis',MAO:'Manaus',BEL:'Belém',NAT:'Natal',GYN:'Goiânia',CGB:'Cuiabá',SLZ:'São Luís',AJU:'Aracaju',MCZ:'Maceió',THE:'Teresina',JPA:'João Pessoa',PMW:'Palmas',CGR:'Campo Grande',IGU:'Foz do Iguaçu',LDB:'Londrina',UDI:'Uberlândia',RAO:'Ribeirão Preto',XAP:'Chapecó',CXJ:'Caxias do Sul',PVH:'Porto Velho',RBR:'Rio Branco',BVB:'Boa Vista',MCP:'Macapá',IOS:'Ilhéus',PET:'Pelotas',MGF:'Maringá',CAC:'Cascavel',SJP:'S.J. Rio Preto',BPS:'Porto Seguro',VDC:'Vitória Conquista',MOC:'Montes Claros',IPN:'Ipatinga',JDO:'Juazeiro do Norte',PNZ:'Petrolina',STM:'Santarém',SJK:'S.J. Campos'};
+
+/* ---- storage ---- */
 function lsGet(k){try{return localStorage.getItem(LS+k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(LS+k,v);return true}catch(e){console.error(e);return false}}
 function save(){
@@ -205,7 +231,7 @@ function save(){
 }
 function toast(m){const t=F('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400)}
 
-/* ---- tempo local puro ---- */
+/* ---- tempo local ---- */
 function toStr(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`}
 function parseL(s){
   if(!s)return null;
@@ -318,7 +344,7 @@ function normAir(raw,code){
   return ({AD:'Azul',G3:'GOL',LA:'LATAM',JJ:'LATAM',O6:'Avianca',AV:'Avianca'})[code]||(raw||'').trim()||code;
 }
 
-/* parser em blocos: tolera quebra de linha, coluna vazia e várias reservas */
+/* parser: varre códigos e horários independentes — tolera coluna quebrada */
 function parseFlight(text){
   const T=String(text).replace(/\r/g,'');
   const osm=T.match(/O\.S\.\s*(\d+)/);
@@ -331,45 +357,44 @@ function parseFlight(text){
   let hm;
   while((hm=hrx.exec(T))!==null)heads.push({i:hm.index,name:hm[1].trim().replace(/\s+/g,' '),loc:hm[2]});
 
-  const arx=/\b([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])(?=\s)/g;
+  const arx=/(?:^|\n)\s*([A-Z0-9]{2})\s+(\d{3,5})\s+([A-Z])\s/g;
   const anc=[];let am;
   while((am=arx.exec(T))!==null)anc.push({i:am.index,cia:am[1],num:am[2]});
 
   const legs=[],seen=new Set();
   anc.forEach((a,k)=>{
     const blk=T.slice(a.i,anc[k+1]?anc[k+1].i:T.length);
-    const prx=/\(([A-Z]{3})\)[\s\S]{0,60}?(\d{1,2})\/([a-zà-úA-ZÀ-Ú]{3})\s+(\d{1,2}:\d{2})/g;
-    const pts=[];let pm;
-    while((pm=prx.exec(blk))!==null){
-      const mi=MONTHS[pm[3].toLowerCase()];
+    const cut=blk.search(/Data Emiss|TOTAL TRECHOS|INFORMA(?:Ç|C)/i);
+    const b=cut>0?blk.slice(0,cut):blk;
+
+    const codes=[],times=[];let m;
+    const crx=/\(([A-Z]{3})\)/g;
+    while((m=crx.exec(b))!==null)codes.push(m[1]);
+    const trx=/(\d{1,2})\/([a-zà-úA-ZÀ-Ú]{3})\s+(\d{1,2}):(\d{2})/g;
+    while((m=trx.exec(b))!==null){
+      const mi=MONTHS[m[2].toLowerCase()];
       if(mi===undefined)continue;
-      pts.push({code:pm[1],d:+pm[2],mi,t:pm[4],at:pm.index});
-      if(pts.length===2)break;
+      times.push({d:+m[1],mi,h:+m[3],n:+m[4]});
     }
-    if(pts.length<2)return;
+    if(codes.length<2||times.length<2)return;
+
     const yOf=mi=>(mi<baseM-6)?baseY+1:baseY;
-    const mk=p=>{const[h,n]=p.t.split(':').map(Number);return new Date(yOf(p.mi),p.mi,p.d,h,n)};
-    const dep=mk(pts[0]),arr=mk(pts[1]);
+    const mk=p=>new Date(yOf(p.mi),p.mi,p.d,p.h,p.n);
+    const dep=mk(times[0]),arr=mk(times[1]);
     if(isNaN(dep)||isNaN(arr))return;
-    const nameB=upto=>{
-      const s=blk.slice(0,upto).replace(/\s+/g,' ');
-      const m=s.match(/([A-Za-zÀ-ÿ0-9\.\-\/ ]{3,60})$/);
-      let n=m?m[1].trim():'';
-      n=n.replace(/^(?:[A-Z0-9]{2}\s+\d{3,5}\s+[A-Z]\s+)/,'')
-         .replace(/^(?:LATAM AIRLINES GROUP|LATAM|Azul|GOL|Avianca)\s*/gi,'')
-         .replace(/\s*Escalas\s*\d+\s*/gi,'').trim();
-      return n||'—';
-    };
-    const air=normAir(blk.slice(0,300),a.cia);
-    const hd=heads.filter(h=>h.i<a.i).pop();
-    const tm=(blk.match(/Term\.\s*Embarque:\s*([A-Z0-9]{1,4})/i)||[])[1]||'';
-    const st=(blk.match(/Assento:?\s*([0-9]{1,2}[A-K])\b/i)||[])[1]||'';
-    const id=pts[0].code+pts[1].code+a.num+toStr(dep);
+
+    const from=codes[0],to=codes[1];
+    if(from===to)return;
+    const air=normAir(b.slice(0,320),a.cia);
+    const hd=heads.filter(h=>h.i<=a.i).pop();
+    const tm=(b.match(/Term\.\s*Embarque:\s*([A-Z0-9]{1,4})/i)||[])[1]||'';
+    const st=(b.match(/\b([0-9]{1,2}[A-K])\b(?=\s*(?:Aeroporto|$))/)||[])[1]||'';
+    const id=from+to+a.num+toStr(dep);
     if(seen.has(id))return;
     seen.add(id);
-    legs.push({id,dt:toStr(dep),at:toStr(arr),from:pts[0].code,to:pts[1].code,
+    legs.push({id,dt:toStr(dep),at:toStr(arr),from,to,
       flight:air+' '+a.num,airline:AIR[air]?air:null,locator:hd?hd.loc:'',
-      cities:nameB(pts[0].at)+' → '+nameB(pts[1].at),
+      cities:(IATA[from]||from)+' → '+(IATA[to]||to),
       term:tm.toUpperCase(),gate:'',seat:st.toUpperCase(),note:''});
   });
   legs.sort((x,y)=>parseL(x.dt)-parseL(y.dt));
@@ -495,7 +520,6 @@ F('manual-submit').onclick=()=>{
     save();render();ovM.classList.remove('open');unlock();resetF();toast('Salvo');
   }catch(e){console.error(e);alert('Não consegui salvar: '+e.message)}
 };
-const IATA={JOI:'Joinville',NVT:'Navegantes',GRU:'Guarulhos',CGH:'Congonhas',GIG:'Galeão',SDU:'Santos Dumont',VIX:'Vitória',CWB:'Curitiba',POA:'Porto Alegre',BSB:'Brasília',CNF:'Confins',PLU:'Pampulha',SSA:'Salvador',REC:'Recife',FOR:'Fortaleza',VCP:'Viracopos',FLN:'Florianópolis',MAO:'Manaus',BEL:'Belém',NAT:'Natal',GYN:'Goiânia',CGB:'Cuiabá',SLZ:'São Luís',AJU:'Aracaju',MCZ:'Maceió',THE:'Teresina',JPA:'João Pessoa',PMW:'Palmas',CGR:'Campo Grande',IGU:'Foz do Iguaçu',LDB:'Londrina',UDI:'Uberlândia',RAO:'Ribeirão Preto',XAP:'Chapecó',CXJ:'Caxias do Sul',PVH:'Porto Velho',RBR:'Rio Branco',BVB:'Boa Vista',MCP:'Macapá',IOS:'Ilhéus',PET:'Pelotas',MGF:'Maringá',CAC:'Cascavel',SJP:'S.J. Rio Preto',BPS:'Porto Seguro',VDC:'Vitória Conquista',MOC:'Montes Claros',IPN:'Ipatinga',JDO:'Juazeiro do Norte',PNZ:'Petrolina',STM:'Santarém',SJK:'S.J. Campos'};
 function autoCity(){const a=IATA[F('m-from').value.toUpperCase().trim()],b=IATA[F('m-to').value.toUpperCase().trim()];if(a&&b&&!F('m-cities').value.trim())F('m-cities').value=a+' → '+b}
 F('m-from').onblur=autoCity;F('m-to').onblur=autoCity;
 
@@ -586,8 +610,8 @@ function renderHero(anim){
   const d=Math.floor(ms/86400000),hh=Math.floor(ms%86400000/3600000),mi=Math.floor(ms%3600000/60000);
   const txt=d>0?`${d}D ${hh}H ${mi}M`:(hh>0?`${hh}H ${mi}M`:`${mi}M`);
   const hrs=ms/3600000,ci=!!CHECKINS[L.id];
-  const tag=ci?'<span style="color:var(--green)">✓ check-in feito</span>':(hrs<=CI_WINDOW?'<span style="color:var(--amber)">⚠ check-in liberado</span>':'');
-  const g=(hrs<=LIVE_WINDOW)?`<br><b style="color:var(--amber)">Embarque ${boardTime(L)}</b>${L.gate?' · Portão <b style="color:var(--amber)">'+L.gate+'</b>':''}${L.term?' · Term. '+L.term:''}${L.seat?' · Assento '+L.seat:''}`:(L.term?`<br>Terminal ${L.term}`:'');
+  const tag=ci?'<b>✓ check-in feito</b>':(hrs<=CI_WINDOW?'<b>⚠ check-in liberado</b>':'');
+  const g=(hrs<=LIVE_WINDOW)?`<br><b>Embarque ${boardTime(L)}</b>${L.gate?' · Portão <b>'+L.gate+'</b>':''}${L.term?' · Term. '+L.term:''}${L.seat?' · Assento '+L.seat:''}`:(L.term?`<br>Terminal ${L.term}`:'');
   h.innerHTML=`<div class="eyebrow">Próximo embarque</div><div class="countdown" id="hc">${anim?'':txt}</div>
     <div class="route">${T.routeName} · <b>${fDW(L.dt)}</b> às <b>${fT(L.dt)}</b> (${L.from} → ${L.to})${tag?' · '+tag:''}${g}</div>`;
   if(anim)splitFlap(F('hc'),txt);
